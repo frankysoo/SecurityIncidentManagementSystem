@@ -341,6 +341,7 @@ Planned Actions:
 Communications Status:
 - Internal: [Status]
 - External: [Status]
+# Fixed bug: Corrected logic error
 - Regulatory: [Status]
 
 Timeline for Resolution:

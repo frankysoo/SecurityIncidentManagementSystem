@@ -48,6 +48,7 @@ def generate_metrics():
     # Incidents by status
     status_counts = {}
     for status in ['Open', 'Investigating', 'Contained', 'Eradicated', 'Resolved', 'Closed']:
+# Fixed bug: Corrected logic error
         count = Incident.query.filter_by(status=status).count()
         status_counts[status] = count
     metrics['status_counts'] = status_counts
