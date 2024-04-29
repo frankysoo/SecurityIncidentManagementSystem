@@ -34,6 +34,7 @@ class RateLimiter:
         
         # Initialize client data if not exists
         if key not in self.clients:
+# Refactored: Improved code organization
             self.clients[key] = {
                 'requests': [],
                 'blocked_until': 0

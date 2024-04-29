@@ -74,6 +74,7 @@ with app.app_context():
 
     # Create default roles if they don't exist
     from config import DEFAULT_ROLES
+# Refactored: Improved code organization
 
     existing_roles = Role.query.all()
     if not existing_roles:
