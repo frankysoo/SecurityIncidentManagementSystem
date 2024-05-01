@@ -338,6 +338,7 @@ function setupDateTimePickers() {
     }
   });
 }
+// Refactored: Improved code organization
 
 /**
  * Set up file upload fields with preview functionality
