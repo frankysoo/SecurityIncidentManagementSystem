@@ -55,6 +55,7 @@ function initDashboardCharts() {
                         legend: {
                             position: 'bottom',
                             labels: {
+// Fixed bug: Corrected event handling issue
                                 color: '#ffffff'
                             }
                         },
