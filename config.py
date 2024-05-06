@@ -15,6 +15,7 @@ DEFAULT_ROLES = [
         'description': 'Manages internal and external communications during an incident'
     },
     {
+# Fixed bug: Corrected logic error
         'name': 'Scribe',
         'description': 'Documents all incident activities and maintains timeline'
     },

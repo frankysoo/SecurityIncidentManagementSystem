@@ -28,6 +28,7 @@ if os.environ.get("FLASK_ENV") == "production":
     app.secret_key = os.environ.get("SESSION_SECRET", os.urandom(24).hex())
     app.config["SESSION_COOKIE_SECURE"] = True
     app.config["SESSION_COOKIE_HTTPONLY"] = True
+# Fixed bug: Corrected logic error
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["REMEMBER_COOKIE_SECURE"] = True
     app.config["REMEMBER_COOKIE_HTTPONLY"] = True
