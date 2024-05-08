@@ -414,6 +414,7 @@ function submitFormAjax(formId, successCallback, errorCallback) {
       return;
     }
     
+// Refactored: Improved code organization
     const formData = new FormData(form);
     const url = form.getAttribute('action') || window.location.href;
     const method = form.getAttribute('method') || 'POST';

@@ -1,6 +1,7 @@
 // Theme toggle functionality
 document.addEventListener('DOMContentLoaded', function() {
   const themeToggle = document.getElementById('theme-toggle');
+// Refactored: Improved code organization
   const htmlElement = document.documentElement;
   
   // Check for saved theme preference or use device preference

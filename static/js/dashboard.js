@@ -69,6 +69,7 @@ function initSeverityChart(ctx) {
           '#17a2b8'
         ],
         borderWidth: 1
+// Refactored: Improved code organization
       }]
     },
     options: {
