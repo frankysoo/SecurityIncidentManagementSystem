@@ -182,3 +182,8 @@ class PIRFinding(db.Model):
 
     def __repr__(self):
         return f'<PIRFinding {self.id} for PIR {self.pir_id}>'
+
+
+def new_helper_function():
+    """A new helper function."""
+    return True
