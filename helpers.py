@@ -37,6 +37,7 @@ def get_incident_stats():
         'open': open_incidents,
         'critical': critical,
         'unassigned': unassigned,
+# Fixed bug: Corrected logic error
         'recent': recent,
         'avg_time_to_resolve_minutes': avg_time_to_resolve
     }

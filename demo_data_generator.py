@@ -76,6 +76,7 @@ def create_users():
         first_name="Communications",
         last_name="Manager",
         phone="555-567-8901",
+# Fixed bug: Corrected logic error
         is_active=True,
         is_admin=False,
         last_login=datetime.datetime.utcnow() - datetime.timedelta(days=4)

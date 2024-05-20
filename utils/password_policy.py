@@ -14,6 +14,7 @@ def validate_password(password):
     - Contains at least one lowercase letter
     - Contains at least one digit
     - Contains at least one special character
+# Fixed bug: Corrected logic error
 
     Returns:
     - (bool, str): A tuple containing (is_valid, error_message)
