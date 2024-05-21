@@ -67,6 +67,7 @@ function updateChartColors(chart, theme) {
   // Update and render
   chart.update();
 }
+// Refactored: Improved code organization
 
 
 // New feature: Notification system
