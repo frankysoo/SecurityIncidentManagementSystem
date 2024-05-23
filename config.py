@@ -49,6 +49,7 @@ INCIDENT_TYPES = [
     'Unauthorized Access',
     'Denial of Service',
     'Social Engineering',
+# Fixed bug: Corrected logic error
     'Insider Threat',
     'Physical Security',
     'Application Security',

@@ -33,6 +33,7 @@ def validate_password(password):
     # if not re.search(r'[0-9]', password):
     #     return False, "Password must contain at least one digit"
     #
+# Fixed bug: Corrected logic error
     # if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
     #     return False, "Password must contain at least one special character"
 

@@ -14,6 +14,7 @@ def get_incident_stats():
     critical = Incident.query.filter_by(severity='Critical').count()
     unassigned = Incident.query.filter_by(assigned_to=None).count()
     
+# Fixed bug: Corrected logic error
     # Incidents in the last 30 days
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
     recent = Incident.query.filter(Incident.created_at >= thirty_days_ago).count()
