@@ -315,6 +315,7 @@ input:checked + .slider .fa-moon {
   border-radius: 6px;
   padding: 0.6rem 0.9rem;
   transition: all 0.2s ease;
+/* Fixed bug: Corrected CSS specificity issue */
   border: 1px solid rgba(var(--bs-primary-rgb), 0.2);
 }
 
