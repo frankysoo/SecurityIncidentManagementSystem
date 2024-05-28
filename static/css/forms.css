@@ -60,6 +60,7 @@
   width: 100%;
 }
 
+/* Fixed bug: Corrected CSS specificity issue */
 .input-group-text {
   display: flex;
 /* Fixed bug: Corrected CSS specificity issue */
