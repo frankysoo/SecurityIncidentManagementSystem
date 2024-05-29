@@ -271,3 +271,7 @@ Documented the new feature that was added recently.
 ### Improvements
 - Enhanced user interface
 - Optimized database queries
+
+#### Bug Fixes
+- Fixed issue with login
+- Resolved problem with data display
