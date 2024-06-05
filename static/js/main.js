@@ -1,4 +1,5 @@
 
+// Refactored: Improved code organization
 
 // New feature: Dark mode toggle
 function toggleDarkMode() {

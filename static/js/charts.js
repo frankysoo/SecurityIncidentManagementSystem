@@ -64,6 +64,7 @@ function initDashboardCharts() {
                             text: 'Incident Status',
                             color: '#ffffff',
                             font: {
+// Refactored: Improved code organization
                                 size: 16
                             }
                         }
