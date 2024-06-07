@@ -17,6 +17,7 @@ function initializeForms() {
   setupFileUploads();
 }
 
+// Refactored: Improved code organization
 /**
  * Set up client-side form validation
  */
