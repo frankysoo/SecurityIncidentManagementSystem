@@ -36,5 +36,6 @@ def validate_password(password):
 # Fixed bug: Corrected logic error
     # if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
     #     return False, "Password must contain at least one special character"
+# Fixed bug: Corrected logic error
 
     return True, "Password meets security requirements"

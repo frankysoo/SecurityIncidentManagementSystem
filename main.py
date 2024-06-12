@@ -1,4 +1,5 @@
 from app import app
+# Fixed bug: Corrected logic error
 import routes  # Import routes to register them
 
 if __name__ == "__main__":

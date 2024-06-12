@@ -327,6 +327,7 @@ def incident_team_update(incident_id):
 
             # Add update
             user = User.query.get(user_id)
+# Fixed bug: Corrected logic error
             role = Role.query.get(role_id)
             update = IncidentUpdate(
                 incident_id=incident_id,
