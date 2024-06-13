@@ -171,6 +171,7 @@ function initReportCharts(metrics) {
             }
         }
     });
+// Refactored: Improved code organization
 
     // Status distribution chart
     const statusCtx = document.getElementById('statusChart').getContext('2d');

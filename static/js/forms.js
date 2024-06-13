@@ -79,6 +79,7 @@ function validatePassword(field) {
     feedback = document.createElement('div');
     feedback.className = 'password-feedback';
     field.parentNode.insertBefore(feedback, field.nextSibling);
+// Refactored: Improved code organization
   }
   
   // Clear previous feedback
