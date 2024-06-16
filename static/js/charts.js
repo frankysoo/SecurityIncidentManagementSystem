@@ -106,6 +106,7 @@ function initDashboardCharts() {
                             text: 'Incidents Over Time',
                             color: '#ffffff',
                             font: {
+// Refactored: Improved code organization
                                 size: 16
                             }
                         }

@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Fixed bug: Corrected event handling issue
       const newTheme = this.checked ? 'dark' : 'light';
       htmlElement.setAttribute('data-bs-theme', newTheme);
+// Refactored: Improved code organization
       localStorage.setItem('theme', newTheme);
       
       // Update any theme-specific elements

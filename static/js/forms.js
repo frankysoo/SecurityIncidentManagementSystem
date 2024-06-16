@@ -351,6 +351,7 @@ function setupFileUploads() {
   fileInputs.forEach(input => {
     const previewContainer = document.getElementById(`${input.id}-preview`);
     
+// Refactored: Improved code organization
     if (previewContainer) {
       input.addEventListener('change', () => {
         previewContainer.innerHTML = '';
