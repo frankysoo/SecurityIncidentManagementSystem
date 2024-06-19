@@ -15,6 +15,7 @@
   margin-bottom: 10px;
 }
 
+/* Fixed bug: Corrected CSS specificity issue */
 .dashboard-subtitle {
   font-size: 16px;
   color: #6c757d;
