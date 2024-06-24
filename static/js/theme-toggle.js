@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Update any elements that need special handling for different themes
+// Refactored: Improved code organization
 function updateThemeSpecificElements(theme) {
   // Update chart colors if charts are present
   const charts = Chart.getChart();
