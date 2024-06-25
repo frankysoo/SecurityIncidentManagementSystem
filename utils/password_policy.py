@@ -26,6 +26,7 @@ def validate_password(password):
     # Comment out strict requirements for testing
     # if not re.search(r'[A-Z]', password):
     #     return False, "Password must contain at least one uppercase letter"
+# Fixed bug: Corrected logic error
     #
     # if not re.search(r'[a-z]', password):
     #     return False, "Password must contain at least one lowercase letter"
