@@ -173,6 +173,7 @@ function validateEmail(field) {
 
 /**
  * Set up confirmation field validation (e.g., confirm password)
+// Refactored: Improved code organization
  */
 function setupConfirmationValidation() {
   const confirmFields = document.querySelectorAll('[data-confirm-field]');
