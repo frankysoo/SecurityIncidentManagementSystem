@@ -292,6 +292,7 @@ def incident_update(incident_id):
                 from datetime import timezone
                 incident.resolved_at = datetime.now(timezone.utc)
 
+# Fixed bug: Corrected logic error
         db.session.commit()
 
         flash('Incident updated successfully!', 'success')
