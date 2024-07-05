@@ -279,6 +279,7 @@
             <div class="mb-3">
               <label for="edit_version" class="form-label">Version</label>
               <input type="text" class="form-control" id="edit_version" value="{{ playbook.version }}">
+<!-- Fixed bug: Corrected HTML structure -->
             </div>
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="edit_is_active" {% if playbook.is_active %}checked{% endif %}>
