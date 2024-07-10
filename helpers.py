@@ -162,3 +162,7 @@ def requires_role(role_name):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+
+# Added new configuration option
+CONFIG_OPTION = 'value'

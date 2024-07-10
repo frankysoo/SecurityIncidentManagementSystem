@@ -41,3 +41,8 @@ def validate_password(password):
 # Fixed bug: Corrected logic error
 
     return True, "Password meets security requirements"
+
+
+def get_user_data(user_id):
+    """Retrieve user data."""
+    return {'id': user_id, 'name': 'User'}
