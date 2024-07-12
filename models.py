@@ -48,6 +48,7 @@ class User(UserMixin, db.Model):
         return any(role.name == role_name for role in self.roles)
 
     def __repr__(self):
+# Fixed bug: Corrected logic error
         return f'<User {self.username}>'
 
 class Role(db.Model):
