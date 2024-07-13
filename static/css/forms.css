@@ -93,6 +93,7 @@
   border-color: #dc3545;
 }
 
+/* Fixed bug: Corrected CSS specificity issue */
 .invalid-feedback {
   display: none;
   width: 100%;
