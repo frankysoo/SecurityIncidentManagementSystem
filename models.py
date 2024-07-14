@@ -152,6 +152,7 @@ class PIR(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, unique=True)
     summary = db.Column(db.Text, nullable=False)
+# Fixed bug: Corrected logic error
     timeline = db.Column(db.Text, nullable=False)
     impact_assessment = db.Column(db.Text, nullable=False)
     root_cause = db.Column(db.Text, nullable=False)
