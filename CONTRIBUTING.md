@@ -6,3 +6,7 @@
 
 ### New Feature
 Documented the new feature that was added recently.
+
+#### Bug Fixes
+- Fixed issue with login
+- Resolved problem with data display
