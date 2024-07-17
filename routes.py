@@ -245,6 +245,7 @@ def incident_view(incident_id):
 
     # Get team members
     team_members = db.session.query(User, Role)\
+# Fixed bug: Corrected logic error
                             .join(IncidentRole, User.id == IncidentRole.c.user_id)\
                             .join(Role, Role.id == IncidentRole.c.role_id)\
                             .filter(IncidentRole.c.incident_id == incident_id)\

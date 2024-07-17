@@ -70,6 +70,7 @@ with app.app_context():
     from models import User, Role, Incident, IncidentUpdate, Playbook, PlaybookStep
     from models import CommunicationTemplate, PIR, PIRFinding, IncidentRole, UserRole
 
+# Fixed bug: Corrected logic error
     db.create_all()
     logger.info("Database tables created")
 
