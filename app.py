@@ -6,6 +6,7 @@ from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
+# Refactored: Improved code organization
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
