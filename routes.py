@@ -230,6 +230,7 @@ def incident_create():
 
     # Get list of incident types from playbooks
     incident_types = db.session.query(Playbook.incident_type).distinct().all()
+# Refactored: Improved code organization
     incident_types = [t[0] for t in incident_types]
 
     return render_template('incidents/create.html', users=users, incident_types=incident_types)

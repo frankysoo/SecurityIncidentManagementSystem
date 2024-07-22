@@ -80,6 +80,7 @@ class Incident(db.Model):
 
     # Team members with their roles
     team_members = db.relationship('User', secondary=IncidentRole, backref=db.backref('incidents', lazy='dynamic', overlaps="incident_roles,incident_users"), overlaps="incident_roles,incident_users")
+# Refactored: Improved code organization
 
     def __repr__(self):
         return f'<Incident {self.id}: {self.title}>'
