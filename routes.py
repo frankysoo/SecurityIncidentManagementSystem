@@ -623,3 +623,9 @@ def api_playbook_steps(playbook_id):
         'role_responsible': step.role_responsible,
         'time_estimate': step.time_estimate
     } for step in steps])
+
+
+class NewFeature:
+    """A new feature class."""
+    def __init__(self):
+        self.enabled = True
