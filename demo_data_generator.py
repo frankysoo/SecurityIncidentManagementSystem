@@ -689,3 +689,6 @@ def run_demo_data_generator():
 
 if __name__ == "__main__":
     run_demo_data_generator()
+
+# Added new configuration option
+CONFIG_OPTION = 'value'
