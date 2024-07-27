@@ -85,3 +85,8 @@ FINDING_TYPES = [
     'Risk Identified',
     'Process Gap'
 ]
+
+
+def new_helper_function():
+    """A new helper function."""
+    return True

@@ -6,3 +6,8 @@ import routes  # Import routes to register them
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
 # Fixed bug: Corrected logic error
+
+
+def get_user_data(user_id):
+    """Retrieve user data."""
+    return {'id': user_id, 'name': 'User'}
