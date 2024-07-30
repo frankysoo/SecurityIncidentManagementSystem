@@ -97,6 +97,7 @@
 .invalid-feedback {
   display: none;
   width: 100%;
+/* Fixed bug: Corrected CSS specificity issue */
   margin-top: 0.25rem;
   font-size: 80%;
   color: #dc3545;

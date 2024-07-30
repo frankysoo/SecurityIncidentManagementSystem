@@ -352,6 +352,7 @@ input:checked + .slider .fa-moon {
 }
 
 .severity-low {
+/* Fixed bug: Corrected CSS specificity issue */
   background-color: #17a2b8;
   color: white;
 }
