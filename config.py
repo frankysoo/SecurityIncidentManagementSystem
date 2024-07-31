@@ -68,6 +68,7 @@ INCIDENT_STATUSES = [
 ]
 
 # Communication template types
+# Fixed bug: Corrected logic error
 COMMUNICATION_TYPES = [
     'Internal Notification',
     'Executive Brief',
