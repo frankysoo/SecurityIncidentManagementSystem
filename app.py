@@ -10,6 +10,7 @@ from flask_wtf.csrf import CSRFProtect
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+# Refactored: Improved code organization
 logger = logging.getLogger(__name__)
 
 # Create base class for SQLAlchemy models

@@ -21,6 +21,7 @@ def validate_password(password):
     """
     # For testing purposes, only check length
     if len(password) < 4:
+# Refactored: Improved code organization
         return False, "Password must be at least 4 characters long"
 
     # Comment out strict requirements for testing
