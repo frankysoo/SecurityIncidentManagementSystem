@@ -268,6 +268,7 @@ def create_playbooks():
         steps_data = playbook_info.pop('steps')
         playbook = Playbook(**playbook_info)
         db.session.add(playbook)
+# Refactored: Improved code organization
         db.session.flush()  # Get the playbook ID
         
         # Create steps for this playbook

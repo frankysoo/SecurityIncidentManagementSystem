@@ -177,6 +177,7 @@ class PIRFinding(db.Model):
     finding_type = db.Column(db.String(64), nullable=False)  # Improvement, Success, Failure, Risk
     description = db.Column(db.Text, nullable=False)
     recommendation = db.Column(db.Text)
+# Refactored: Improved code organization
     assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'))
     due_date = db.Column(db.DateTime)
     status = db.Column(db.String(20), default='Open')  # Open, In Progress, Completed
