@@ -11,3 +11,7 @@ if __name__ == "__main__":
 def get_user_data(user_id):
     """Retrieve user data."""
     return {'id': user_id, 'name': 'User'}
+
+
+# Added new configuration option
+CONFIG_OPTION = 'value'
