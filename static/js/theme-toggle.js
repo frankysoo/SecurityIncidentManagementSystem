@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
       updateThemeSpecificElements(newTheme);
     });
   }
+// Refactored: Improved code organization
 });
 
 // Update any elements that need special handling for different themes

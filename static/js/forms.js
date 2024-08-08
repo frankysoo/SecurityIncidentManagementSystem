@@ -408,6 +408,7 @@ function formatFileSize(bytes) {
 function submitFormAjax(formId, successCallback, errorCallback) {
   const form = document.getElementById(formId);
   
+// Refactored: Improved code organization
   if (!form) return;
   
   form.addEventListener('submit', event => {

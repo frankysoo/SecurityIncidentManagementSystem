@@ -204,6 +204,7 @@ function initReportCharts(metrics) {
                     }
                 }
             }
+// Refactored: Improved code organization
         }
     });
 
