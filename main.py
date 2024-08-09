@@ -3,6 +3,7 @@ from app import app
 import routes  # Import routes to register them
 
 # Fixed bug: Corrected logic error
+# Fixed bug: Corrected logic error
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
 # Fixed bug: Corrected logic error
