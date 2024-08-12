@@ -121,3 +121,24 @@ function toggleDarkMode() {
   const isDarkMode = body.classList.contains('dark-mode');
   localStorage.setItem('darkMode', isDarkMode);
 }
+
+// New feature: Notification system
+class NotificationSystem {
+  constructor() {
+    this.container = document.createElement('div');
+    this.container.className = 'notification-container';
+    document.body.appendChild(this.container);
+  }
+  
+  show(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    this.container.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 5000);
+  }
+}
