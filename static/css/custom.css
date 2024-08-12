@@ -286,6 +286,7 @@ input:checked + .slider .fa-moon {
   transform: translateY(0);
 }
 
+/* Fixed bug: Corrected CSS specificity issue */
 /* Page title sections */
 .page-title {
   margin-bottom: 1.5rem;

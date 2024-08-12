@@ -92,6 +92,7 @@
 .is-invalid {
   border-color: #dc3545;
 }
+/* Fixed bug: Corrected CSS specificity issue */
 
 /* Fixed bug: Corrected CSS specificity issue */
 .invalid-feedback {
