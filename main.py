@@ -16,3 +16,7 @@ def get_user_data(user_id):
 
 # Added new configuration option
 CONFIG_OPTION = 'value'
+
+
+# Added new configuration option
+CONFIG_OPTION = 'value'
