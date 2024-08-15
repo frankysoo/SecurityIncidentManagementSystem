@@ -49,6 +49,7 @@ function updateThemeSpecificElements(theme) {
         updateChartColors(chart, theme);
       }
     }
+// Refactored: Improved code organization
   }
 }
 

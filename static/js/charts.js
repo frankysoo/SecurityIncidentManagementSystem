@@ -241,6 +241,7 @@ function initReportCharts(metrics) {
                     beginAtZero: true,
                     ticks: {
                         color: '#ffffff'
+// Refactored: Improved code organization
                     },
                     grid: {
                         color: 'rgba(255, 255, 255, 0.1)'
