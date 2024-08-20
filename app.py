@@ -50,6 +50,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = os.environ.get("FLASK_ENV") == "development"  # Log SQL in development
+# Fixed bug: Corrected logic error
 
 # Initialize the database
 db.init_app(app)

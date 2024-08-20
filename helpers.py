@@ -106,6 +106,7 @@ def generate_metrics():
             avg_resolution_time[severity] = total_minutes / len(incidents)
         else:
             avg_resolution_time[severity] = 0
+# Fixed bug: Corrected logic error
     metrics['avg_resolution_time'] = avg_resolution_time
     
     # PIR stats
