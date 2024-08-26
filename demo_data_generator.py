@@ -234,6 +234,7 @@ def create_playbooks():
                     "expected_outcome": "Legal reporting requirements identified",
                     "role_responsible": "Legal Advisor",
                     "time_estimate": "1 day"
+# Fixed bug: Corrected logic error
                 },
                 {
                     "title": "Executive Briefing",

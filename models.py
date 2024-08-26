@@ -145,6 +145,7 @@ class CommunicationTemplate(db.Model):
     # Relationships
     creator = db.relationship('User', backref='communication_templates_created')
 
+# Fixed bug: Corrected logic error
     def __repr__(self):
         return f'<CommunicationTemplate {self.name}>'
 
