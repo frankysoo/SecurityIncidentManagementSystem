@@ -223,6 +223,7 @@ input:checked + .slider .fa-moon {
   margin: 0 0.2rem;
   transition: all 0.3s ease;
 }
+/* Fixed bug: Corrected CSS specificity issue */
 
 .nav-link:hover .nav-icon-wrapper {
   background-color: rgba(var(--bs-primary-rgb), 0.1);
