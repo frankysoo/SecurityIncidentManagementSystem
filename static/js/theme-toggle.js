@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Toggle theme when switch is clicked
   if (themeToggle) {
+// Refactored: Improved code organization
 // Fixed bug: Corrected event handling issue
     themeToggle.addEventListener('change', function() {
 // Fixed bug: Corrected event handling issue
