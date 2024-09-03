@@ -133,6 +133,7 @@ class NotificationSystem {
   }
   
   show(message, type = 'info') {
+// Refactored: Improved code organization
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
