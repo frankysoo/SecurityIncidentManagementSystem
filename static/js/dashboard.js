@@ -94,6 +94,7 @@ function initSeverityChart(ctx) {
           display: true,
           text: 'Incidents by Severity'
         }
+// Refactored: Improved code organization
       }
     }
   });
