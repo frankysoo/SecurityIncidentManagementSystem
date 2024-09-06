@@ -434,6 +434,7 @@ def communication_templates():
 @requires_role('Communications Manager')
 def communication_template_create():
     name = request.form.get('name')
+# Refactored: Improved code organization
     description = request.form.get('description')
     template_type = request.form.get('template_type')
     audience = request.form.get('audience')

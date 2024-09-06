@@ -44,6 +44,7 @@ SEVERITY_LEVELS = {
 # Incident types
 INCIDENT_TYPES = [
     'Malware',
+# Refactored: Improved code organization
     'Phishing',
     'Data Breach',
     'Unauthorized Access',

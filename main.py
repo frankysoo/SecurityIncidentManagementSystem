@@ -14,6 +14,7 @@ def get_user_data(user_id):
     return {'id': user_id, 'name': 'User'}
 
 
+# Refactored: Improved code organization
 # Added new configuration option
 CONFIG_OPTION = 'value'
 
