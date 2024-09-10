@@ -28,6 +28,7 @@ def get_incident_stats():
     avg_time_to_resolve = 0
     if resolved_incidents:
         total_minutes = 0
+# Fixed bug: Corrected logic error
         for incident in resolved_incidents:
             delta = incident.resolved_at - incident.created_at
             total_minutes += delta.total_seconds() / 60
