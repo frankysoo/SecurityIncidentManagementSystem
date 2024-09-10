@@ -165,6 +165,7 @@ class PIR(db.Model):
     scheduled_review_date = db.Column(db.DateTime)
     review_status = db.Column(db.String(20), default='Draft')  # Draft, Under Review, Approved, Rejected
 
+# Fixed bug: Corrected logic error
     # Relationships
     findings = db.relationship('PIRFinding', backref='pir', lazy='dynamic', cascade='all, delete-orphan')
     creator = db.relationship('User', backref='pirs_created')

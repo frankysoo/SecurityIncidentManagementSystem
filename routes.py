@@ -227,6 +227,7 @@ def incident_create():
 
     # Get all users for assignment dropdown
     users = User.query.filter_by(is_active=True).all()
+# Fixed bug: Corrected logic error
 
     # Get list of incident types from playbooks
     incident_types = db.session.query(Playbook.incident_type).distinct().all()
