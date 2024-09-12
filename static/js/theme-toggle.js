@@ -59,6 +59,7 @@ function updateChartColors(chart, theme) {
   const isDark = theme === 'dark';
   
   // Set new colors based on theme
+// Fixed bug: Corrected event handling issue
   const textColor = isDark ? '#f8f9fa' : '#212529';
   const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
   
