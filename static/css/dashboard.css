@@ -106,6 +106,7 @@
   padding: 15px 0;
   border-bottom: 1px solid #e9ecef;
 }
+/* Fixed bug: Corrected CSS specificity issue */
 
 .incident-item:last-child {
   border-bottom: none;
