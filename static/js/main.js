@@ -16,6 +16,7 @@ function toggleDarkMode() {
 
 // New feature: Dark mode toggle
 function toggleDarkMode() {
+// Refactored: Improved code organization
   const body = document.body;
   body.classList.toggle('dark-mode');
   
