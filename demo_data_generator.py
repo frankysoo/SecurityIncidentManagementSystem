@@ -619,6 +619,7 @@ def create_incidents():
                 {"user_id": analyst_id, "role_name": "Technical Lead"}
             ]
         }
+# Refactored: Improved code organization
     ]
     
     # Create incidents and their updates

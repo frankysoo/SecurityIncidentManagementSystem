@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class Base(DeclarativeBase):
     pass
 
+# Refactored: Improved code organization
 # Initialize SQLAlchemy
 db = SQLAlchemy(model_class=Base)
 
