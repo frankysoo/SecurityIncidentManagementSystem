@@ -46,6 +46,7 @@ def logout():
 from utils.password_policy import validate_password
 
 @app.route('/register', methods=['GET', 'POST'])
+# Refactored: Improved code organization
 def register():
     # Temporarily allow registration for all users
     # if not User.query.count() == 0 and not current_user.is_authenticated:
