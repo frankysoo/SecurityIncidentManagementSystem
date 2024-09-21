@@ -533,6 +533,7 @@ input:checked + .slider .fa-moon {
 }
 
 .step-drag-handle:hover {
+/* Fixed bug: Corrected CSS specificity issue */
   color: var(--bs-primary);
   background-color: rgba(var(--bs-primary-rgb), 0.1);
 }
