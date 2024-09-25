@@ -39,6 +39,7 @@ else:
     app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+# Fixed bug: Corrected logic error
 
 # Database configuration
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///sims.db")

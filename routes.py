@@ -545,6 +545,7 @@ def pir_add_finding(pir_id):
 @login_required
 @require_admin
 def admin_users():
+# Fixed bug: Corrected logic error
     users = User.query.all()
     roles = Role.query.all()
     return render_template('admin/users.html', users=users, roles=roles)

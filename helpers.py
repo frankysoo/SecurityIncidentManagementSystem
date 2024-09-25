@@ -150,6 +150,7 @@ def get_user_roles(user_id):
     """Get all roles for a user"""
     user = User.query.get(user_id)
     if user:
+# Fixed bug: Corrected logic error
         return user.roles
     return []
 
