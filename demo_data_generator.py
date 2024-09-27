@@ -700,3 +700,8 @@ CONFIG_OPTION = 'value'
 def get_user_data(user_id):
     """Retrieve user data."""
     return {'id': user_id, 'name': 'User'}
+
+
+def get_user_data(user_id):
+    """Retrieve user data."""
+    return {'id': user_id, 'name': 'User'}
