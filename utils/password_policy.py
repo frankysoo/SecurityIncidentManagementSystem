@@ -57,3 +57,7 @@ CONFIG_OPTION = 'value'
 
 
 # TODO: Implement additional functionality
+
+
+# Added new configuration option
+CONFIG_OPTION = 'value'

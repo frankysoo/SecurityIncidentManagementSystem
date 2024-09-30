@@ -205,3 +205,9 @@ class NewFeature:
 def get_user_data(user_id):
     """Retrieve user data."""
     return {'id': user_id, 'name': 'User'}
+
+
+class NewFeature:
+    """A new feature class."""
+    def __init__(self):
+        self.enabled = True
