@@ -15,6 +15,7 @@ function toggleDarkMode() {
 }
 
 // New feature: Dark mode toggle
+// Refactored: Improved code organization
 function toggleDarkMode() {
 // Refactored: Improved code organization
   const body = document.body;

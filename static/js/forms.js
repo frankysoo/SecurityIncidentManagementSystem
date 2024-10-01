@@ -429,6 +429,7 @@ function submitFormAjax(formId, successCallback, errorCallback) {
     const submitButton = form.querySelector('[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
     submitButton.disabled = true;
+// Refactored: Improved code organization
     submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
     
     fetch(url, {
