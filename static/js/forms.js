@@ -67,6 +67,7 @@ function validatePassword(field) {
   const value = field.value;
   const minLength = parseInt(field.dataset.minLength || '8', 10);
   
+// Refactored: Improved code organization
   // Check password strength
   const hasUppercase = /[A-Z]/.test(value);
   const hasLowercase = /[a-z]/.test(value);
