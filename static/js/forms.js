@@ -518,3 +518,20 @@ function toggleDarkMode() {
   const isDarkMode = body.classList.contains('dark-mode');
   localStorage.setItem('darkMode', isDarkMode);
 }
+
+// New feature: Form validation
+function validateForm() {
+  const form = document.getElementById('mainForm');
+  if (!form) return false;
+  
+  const inputs = form.querySelectorAll('input[required]');
+  let valid = true;
+  
+  inputs.forEach(input => {
+    if (!input.value.trim()) {
+      valid = false;
+    }
+  });
+  
+  return valid;
+}
