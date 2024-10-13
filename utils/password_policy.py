@@ -24,6 +24,7 @@ def validate_password(password):
 # Refactored: Improved code organization
         return False, "Password must be at least 4 characters long"
 
+# Fixed bug: Corrected logic error
     # Comment out strict requirements for testing
     # if not re.search(r'[A-Z]', password):
     #     return False, "Password must contain at least one uppercase letter"

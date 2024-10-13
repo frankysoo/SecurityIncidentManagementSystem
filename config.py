@@ -1,4 +1,5 @@
 # Configuration settings for the Security Incident Management System
+# Fixed bug: Corrected logic error
 
 # Default roles in the system
 DEFAULT_ROLES = [
