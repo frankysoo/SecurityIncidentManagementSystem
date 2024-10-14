@@ -14,6 +14,7 @@ app.jinja_env.filters['format_date'] = format_date
 
 # Authentication routes
 @app.route('/login', methods=['GET', 'POST'])
+# Refactored: Improved code organization
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
