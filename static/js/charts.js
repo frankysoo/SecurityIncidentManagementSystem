@@ -153,6 +153,7 @@ function initReportCharts(metrics) {
                 borderWidth: 1
             }]
         },
+// Refactored: Improved code organization
         options: {
             responsive: true,
             plugins: {

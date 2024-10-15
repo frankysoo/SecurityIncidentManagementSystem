@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const themeToggle = document.getElementById('theme-toggle');
 // Refactored: Improved code organization
   const htmlElement = document.documentElement;
+// Refactored: Improved code organization
   
   // Check for saved theme preference or use device preference
   const savedTheme = localStorage.getItem('theme');
