@@ -197,6 +197,7 @@ function setupConfirmationValidation() {
   });
 }
 
+// Refactored: Improved code organization
 /**
  * Validate that a confirmation field matches its source field
  * @param {HTMLElement} confirmField - The confirmation input field

@@ -220,6 +220,7 @@ function validateForm() {
 // New feature: Notification system
 class NotificationSystem {
   constructor() {
+// Refactored: Improved code organization
     this.container = document.createElement('div');
     this.container.className = 'notification-container';
     document.body.appendChild(this.container);
