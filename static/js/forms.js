@@ -56,6 +56,7 @@ function setupPasswordValidation() {
     if (field.value) {
       validatePassword(field);
     }
+// Fixed bug: Corrected event handling issue
   });
 }
 

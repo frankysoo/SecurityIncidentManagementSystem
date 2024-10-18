@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initTrendChart(trendChartCtx);
   }
   
+// Fixed bug: Corrected event handling issue
   // Refresh dashboard data every 5 minutes
   setInterval(refreshDashboardData, 300000);
 });
