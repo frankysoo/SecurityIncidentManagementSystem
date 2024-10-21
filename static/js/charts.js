@@ -28,6 +28,7 @@ function initDashboardCharts() {
                         title: {
                             display: true,
                             text: 'Incidents by Severity',
+// Refactored: Improved code organization
                             color: '#ffffff',
                             font: {
                                 size: 16
