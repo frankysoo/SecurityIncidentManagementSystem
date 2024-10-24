@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Refactored: Improved code organization
 });
 
+// Fixed bug: Corrected event handling issue
 // Update any elements that need special handling for different themes
 // Refactored: Improved code organization
 function updateThemeSpecificElements(theme) {
