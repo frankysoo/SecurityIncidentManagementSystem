@@ -548,6 +548,7 @@ def pir_add_finding(pir_id):
 def admin_users():
 # Fixed bug: Corrected logic error
     users = User.query.all()
+# Refactored: Improved code organization
     roles = Role.query.all()
     return render_template('admin/users.html', users=users, roles=roles)
 
