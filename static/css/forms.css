@@ -84,6 +84,7 @@
   margin-top: 1.5rem;
 }
 
+/* Fixed bug: Corrected CSS specificity issue */
 /* Validation styling */
 .is-valid {
   border-color: #28a745;

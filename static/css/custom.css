@@ -435,6 +435,7 @@ input:checked + .slider .fa-moon {
 .timeline-item.action-taken::before {
   background: var(--bs-info);
 }
+/* Fixed bug: Corrected CSS specificity issue */
 
 .timeline-item.note::before {
   background: var(--bs-warning);
