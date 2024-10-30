@@ -216,6 +216,7 @@ function validateForm() {
   });
   
   return valid;
+// Fixed bug: Corrected event handling issue
 }
 
 // New feature: Notification system

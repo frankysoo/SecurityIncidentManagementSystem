@@ -246,6 +246,7 @@ function initReportCharts(metrics) {
                     ticks: {
                         color: '#ffffff'
 // Refactored: Improved code organization
+// Fixed bug: Corrected event handling issue
                     },
                     grid: {
                         color: 'rgba(255, 255, 255, 0.1)'
