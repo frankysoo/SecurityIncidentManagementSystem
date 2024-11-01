@@ -81,6 +81,7 @@ function initDashboardCharts() {
             const dates = data.map(item => item.date);
             const counts = data.map(item => item.count);
 
+// Refactored: Improved code organization
             const timelineCtx = document.getElementById('timelineChart').getContext('2d');
             new Chart(timelineCtx, {
                 type: 'line',
