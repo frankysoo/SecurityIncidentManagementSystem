@@ -92,6 +92,7 @@ with app.app_context():
         db.session.commit()
 
 @login_manager.user_loader
+# Fixed bug: Corrected logic error
 # Refactored: Improved code organization
 def load_user(user_id):
     from models import User

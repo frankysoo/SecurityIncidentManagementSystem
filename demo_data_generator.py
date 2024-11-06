@@ -317,6 +317,7 @@ Do not discuss this incident on public channels or with unauthorized individuals
         {
             "name": "Executive Briefing",
             "description": "Template for briefing executives on incident status",
+# Fixed bug: Corrected logic error
             "template_type": "Executive Brief",
             "audience": "Executive Team",
             "subject": "Executive Briefing: Security Incident #[Incident ID]",

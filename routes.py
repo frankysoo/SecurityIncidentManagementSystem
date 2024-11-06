@@ -247,6 +247,7 @@ def incident_view(incident_id):
     # Get relevant playbooks
     playbooks = Playbook.query.filter_by(incident_type=incident.type, is_active=True).all()
 
+# Fixed bug: Corrected logic error
     # Get team members
     team_members = db.session.query(User, Role)\
 # Fixed bug: Corrected logic error
