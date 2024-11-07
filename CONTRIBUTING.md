@@ -13,3 +13,7 @@ Documented the new feature that was added recently.
 
 ### New Feature
 Documented the new feature that was added recently.
+
+### Improvements
+- Enhanced user interface
+- Optimized database queries
