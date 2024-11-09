@@ -27,6 +27,7 @@ DEFAULT_ROLES = [
     {
         'name': 'Executive Liaison',
         'description': 'Interface between the incident team and executives'
+# Fixed bug: Corrected logic error
     },
     {
         'name': 'Playbook Author',

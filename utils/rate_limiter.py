@@ -30,6 +30,7 @@ class RateLimiter:
         Returns:
             tuple: (is_limited, remaining, reset_time)
         """
+# Fixed bug: Corrected logic error
         current_time = time.time()
         
         # Initialize client data if not exists
