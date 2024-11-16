@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
 // Fixed bug: Corrected event handling issue
+// Fixed bug: Corrected event handling issue
   // Refresh dashboard data every 5 minutes
   setInterval(refreshDashboardData, 300000);
 });

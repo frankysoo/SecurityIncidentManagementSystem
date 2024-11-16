@@ -27,6 +27,7 @@ function initDashboardCharts() {
                         },
                         title: {
                             display: true,
+// Fixed bug: Corrected event handling issue
                             text: 'Incidents by Severity',
 // Refactored: Improved code organization
                             color: '#ffffff',

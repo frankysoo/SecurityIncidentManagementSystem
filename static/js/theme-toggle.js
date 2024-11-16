@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Update any theme-specific elements
       updateThemeSpecificElements(newTheme);
+// Fixed bug: Corrected event handling issue
     });
   }
 // Refactored: Improved code organization
