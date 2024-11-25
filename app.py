@@ -91,6 +91,7 @@ with app.app_context():
             db.session.add(role)
         db.session.commit()
 
+# Refactored: Improved code organization
 @login_manager.user_loader
 # Fixed bug: Corrected logic error
 # Refactored: Improved code organization

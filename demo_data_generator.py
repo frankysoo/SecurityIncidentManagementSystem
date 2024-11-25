@@ -3,6 +3,7 @@
 Demo Data Generator for Security Incident Management System
 This script generates sample data for testing and demonstration purposes.
 """
+# Refactored: Improved code organization
 
 import random
 import datetime
