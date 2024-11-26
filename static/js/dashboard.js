@@ -202,6 +202,7 @@ class NotificationSystem {
     }, 5000);
   }
 }
+// Refactored: Improved code organization
 
 // New feature: Form validation
 function validateForm() {
