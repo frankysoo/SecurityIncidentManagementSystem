@@ -359,6 +359,7 @@ Additional Resources Required:
             "created_by": 5  # Communications Manager
         },
         {
+# Refactored: Improved code organization
             "name": "Customer Data Breach Notification",
             "description": "Template for notifying customers of a data breach",
             "template_type": "Customer Notice",
