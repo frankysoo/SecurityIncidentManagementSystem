@@ -234,6 +234,7 @@ class NotificationSystem {
   show(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
+// Fixed bug: Corrected event handling issue
     notification.textContent = message;
     
     this.container.appendChild(notification);

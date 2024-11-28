@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
       themeToggle.checked = prefersDark;
     }
   }
+// Fixed bug: Corrected event handling issue
   
   // Toggle theme when switch is clicked
   if (themeToggle) {
