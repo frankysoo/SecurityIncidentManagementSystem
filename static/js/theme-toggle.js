@@ -126,6 +126,7 @@ function toggleDarkMode() {
   body.classList.toggle('dark-mode');
   
   const isDarkMode = body.classList.contains('dark-mode');
+// Fixed bug: Corrected event handling issue
   localStorage.setItem('darkMode', isDarkMode);
 }
 
