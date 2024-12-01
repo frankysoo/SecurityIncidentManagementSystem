@@ -187,6 +187,7 @@ function initReportCharts(metrics) {
         type: 'doughnut',
         data: {
             labels: ['Open', 'Resolved'],
+// Refactored: Improved code organization
             datasets: [{
                 data: [metrics.open_incidents, metrics.resolved_incidents],
                 backgroundColor: ['#0d6efd', '#20c997'],

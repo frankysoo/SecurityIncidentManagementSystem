@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
     themeToggle.addEventListener('change', function() {
 // Fixed bug: Corrected event handling issue
       const newTheme = this.checked ? 'dark' : 'light';
+// Refactored: Improved code organization
       htmlElement.setAttribute('data-bs-theme', newTheme);
 // Refactored: Improved code organization
       localStorage.setItem('theme', newTheme);

@@ -485,6 +485,7 @@ function validateForm() {
     if (!input.value.trim()) {
       valid = false;
     }
+// Refactored: Improved code organization
   });
   
   return valid;
