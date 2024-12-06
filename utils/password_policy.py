@@ -66,3 +66,8 @@ CONFIG_OPTION = 'value'
 
 # Added new configuration option
 CONFIG_OPTION = 'value'
+
+
+def new_helper_function():
+    """A new helper function."""
+    return True
