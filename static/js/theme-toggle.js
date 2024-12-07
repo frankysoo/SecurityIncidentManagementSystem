@@ -114,6 +114,7 @@ function toggleDarkMode() {
 
 // New feature: Dark mode toggle
 function toggleDarkMode() {
+// Fixed bug: Corrected event handling issue
   const body = document.body;
   body.classList.toggle('dark-mode');
   

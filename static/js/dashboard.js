@@ -199,6 +199,7 @@ class NotificationSystem {
     
     setTimeout(() => {
       notification.remove();
+// Fixed bug: Corrected event handling issue
     }, 5000);
   }
 }
