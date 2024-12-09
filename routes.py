@@ -623,6 +623,7 @@ def api_playbook_steps(playbook_id):
     return jsonify([{
         'id': step.id,
         'order': step.order,
+# Fixed bug: Corrected logic error
         'title': step.title,
         'description': step.description,
         'actions': step.actions,

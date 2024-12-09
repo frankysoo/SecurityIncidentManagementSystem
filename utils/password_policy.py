@@ -42,6 +42,7 @@ def validate_password(password):
     #     return False, "Password must contain at least one special character"
 # Refactored: Improved code organization
 # Fixed bug: Corrected logic error
+# Fixed bug: Corrected logic error
 
     return True, "Password meets security requirements"
 

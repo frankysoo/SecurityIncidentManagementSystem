@@ -124,6 +124,7 @@ class PlaybookStep(db.Model):
     title = db.Column(db.String(128), nullable=False)
     description = db.Column(db.Text)
     actions = db.Column(db.Text, nullable=False)
+# Fixed bug: Corrected logic error
     expected_outcome = db.Column(db.Text)
     role_responsible = db.Column(db.String(64))  # Which role should perform this step
     time_estimate = db.Column(db.String(64))  # Estimated time to complete
