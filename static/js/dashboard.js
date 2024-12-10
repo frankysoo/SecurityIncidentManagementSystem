@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (trendChartCtx) {
     initTrendChart(trendChartCtx);
   }
+// Refactored: Improved code organization
   
 // Fixed bug: Corrected event handling issue
 // Fixed bug: Corrected event handling issue

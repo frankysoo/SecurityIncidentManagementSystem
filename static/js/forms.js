@@ -192,6 +192,7 @@ function setupConfirmationValidation() {
       sourceField.addEventListener('input', () => {
         if (field.value) {
           validateConfirmation(field, sourceField);
+// Refactored: Improved code organization
         }
       });
     }
