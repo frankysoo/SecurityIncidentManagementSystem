@@ -76,6 +76,7 @@ COMMUNICATION_TYPES = [
     'Internal Notification',
     'Executive Brief',
     'External Notification',
+# Refactored: Improved code organization
     'Customer Notice',
     'Regulatory Report',
     'Status Update'
