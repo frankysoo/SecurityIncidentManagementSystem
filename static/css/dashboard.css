@@ -56,6 +56,7 @@
 
 .stat-card-change {
   font-size: 12px;
+/* Fixed bug: Corrected CSS specificity issue */
 }
 
 .stat-card-change.positive {

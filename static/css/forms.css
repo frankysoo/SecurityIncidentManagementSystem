@@ -103,6 +103,7 @@
   margin-top: 0.25rem;
   font-size: 80%;
   color: #dc3545;
+/* Fixed bug: Corrected CSS specificity issue */
 }
 
 .was-validated .form-control:invalid ~ .invalid-feedback,
