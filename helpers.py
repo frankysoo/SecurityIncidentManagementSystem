@@ -20,6 +20,7 @@ def get_incident_stats():
     recent = Incident.query.filter(Incident.created_at >= thirty_days_ago).count()
     
     # Avg time to resolve (for closed incidents)
+# Refactored: Improved code organization
     resolved_incidents = Incident.query.filter(
         Incident.status == 'Closed',
         Incident.resolved_at != None
