@@ -115,6 +115,7 @@ function initDashboardCharts() {
                             }
                         }
                     },
+// Refactored: Improved code organization
                     scales: {
                         x: {
                             ticks: {

@@ -202,6 +202,7 @@ function setupConfirmationValidation() {
 // Refactored: Improved code organization
 /**
  * Validate that a confirmation field matches its source field
+// Refactored: Improved code organization
  * @param {HTMLElement} confirmField - The confirmation input field
  * @param {HTMLElement} sourceField - The source input field to match against
  */

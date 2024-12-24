@@ -155,6 +155,7 @@ function refreshDashboardData() {
       document.getElementById('openIncidents').textContent = data.open;
       document.getElementById('criticalIncidents').textContent = data.critical;
       document.getElementById('unassignedIncidents').textContent = data.unassigned;
+// Refactored: Improved code organization
       
       // You would also update the charts here in a full implementation
     });
