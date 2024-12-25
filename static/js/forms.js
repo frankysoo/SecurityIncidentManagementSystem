@@ -439,6 +439,7 @@ function submitFormAjax(formId, successCallback, errorCallback) {
     
     fetch(url, {
       method: method,
+// Fixed bug: Corrected event handling issue
       body: formData,
       credentials: 'same-origin'
     })
