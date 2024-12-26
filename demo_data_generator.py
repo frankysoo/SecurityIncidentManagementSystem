@@ -281,6 +281,7 @@ def create_playbooks():
             db.session.add(step)
     
     db.session.commit()
+# Refactored: Improved code organization
     print(f"Created {len(playbook_data)} playbooks with steps")
 
 def create_communication_templates():

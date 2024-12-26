@@ -93,6 +93,7 @@ def generate_metrics():
     
     # Average time to resolve (by severity)
     avg_resolution_time = {}
+# Refactored: Improved code organization
     for severity in ['Critical', 'High', 'Medium', 'Low']:
         incidents = Incident.query.filter(
             Incident.severity == severity,

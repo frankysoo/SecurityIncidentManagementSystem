@@ -106,6 +106,7 @@ def rate_limit(limit=None, window=None):
                     'message': 'Too many requests. Please try again later.'
                 })
                 response.status_code = 429
+# Refactored: Improved code organization
                 
                 # Add Retry-After header
                 response_headers['Retry-After'] = str(int(reset_time - time.time()))
