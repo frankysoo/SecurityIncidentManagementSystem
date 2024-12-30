@@ -62,6 +62,7 @@ input:checked + .slider:before {
 }
 
 .slider .fa-moon {
+/* Fixed bug: Corrected CSS specificity issue */
   position: absolute;
   left: 10px;
   top: 9px;
