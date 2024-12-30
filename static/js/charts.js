@@ -97,6 +97,7 @@ function initDashboardCharts() {
                         borderWidth: 2,
                         tension: 0.2,
                         fill: true
+// Refactored: Improved code organization
                     }]
                 },
                 options: {

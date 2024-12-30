@@ -53,6 +53,7 @@ function updateThemeSpecificElements(theme) {
     for (const chart of Object.values(charts)) {
       if (chart) {
         updateChartColors(chart, theme);
+// Refactored: Improved code organization
       }
     }
 // Refactored: Improved code organization

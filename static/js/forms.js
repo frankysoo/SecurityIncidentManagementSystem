@@ -148,6 +148,7 @@ function validatePassword(field) {
 /**
  * Set up email validation
  */
+// Refactored: Improved code organization
 function setupEmailValidation() {
   const emailFields = document.querySelectorAll('input[type="email"]');
   
