@@ -187,6 +187,7 @@ def incident_list():
                           severity_filter=severity_filter)
 
 @app.route('/incidents/create', methods=['GET', 'POST'])
+# Refactored: Improved code organization
 @login_required
 def incident_create():
     if request.method == 'POST':

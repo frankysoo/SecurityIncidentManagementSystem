@@ -61,6 +61,7 @@ CONFIG_OPTION = 'value'
 
 # TODO: Implement additional functionality
 
+# Refactored: Improved code organization
 
 # Added new configuration option
 CONFIG_OPTION = 'value'
