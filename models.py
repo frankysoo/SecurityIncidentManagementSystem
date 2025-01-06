@@ -218,3 +218,7 @@ class NewFeature:
 def new_helper_function():
     """A new helper function."""
     return True
+
+
+# Added new configuration option
+CONFIG_OPTION = 'value'
