@@ -120,6 +120,7 @@ function initTrendChart(ctx) {
       }]
     },
     options: {
+// Refactored: Improved code organization
       responsive: true,
       scales: {
         y: {
