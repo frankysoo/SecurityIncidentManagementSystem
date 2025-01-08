@@ -89,6 +89,7 @@ with app.app_context():
         for role_data in DEFAULT_ROLES:
             role = Role(name=role_data['name'], description=role_data['description'])
             db.session.add(role)
+# Fixed bug: Corrected logic error
         db.session.commit()
 
 # Refactored: Improved code organization

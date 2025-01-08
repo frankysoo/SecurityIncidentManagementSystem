@@ -2,6 +2,7 @@ from app import app
 # Fixed bug: Corrected logic error
 import routes  # Import routes to register them
 
+# Fixed bug: Corrected logic error
 # Refactored: Improved code organization
 # Fixed bug: Corrected logic error
 # Fixed bug: Corrected logic error

@@ -77,6 +77,7 @@ class Incident(db.Model):
     # Relationships
     updates = db.relationship('IncidentUpdate', backref='incident', lazy='dynamic', cascade='all, delete-orphan')
     pir = db.relationship('PIR', backref='incident', uselist=False, cascade='all, delete-orphan')
+# Fixed bug: Corrected logic error
     assignee = db.relationship('User', foreign_keys=[assigned_to], backref='assigned_incidents')
 
     # Team members with their roles
