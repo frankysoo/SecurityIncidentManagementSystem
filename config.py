@@ -57,6 +57,7 @@ INCIDENT_TYPES = [
     'Physical Security',
     'Application Security',
     'Network Security',
+# Refactored: Improved code organization
     'Other'
 ]
 
