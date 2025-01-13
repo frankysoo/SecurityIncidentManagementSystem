@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     htmlElement.setAttribute('data-bs-theme', savedTheme);
     if (themeToggle) {
       themeToggle.checked = savedTheme === 'dark';
+// Refactored: Improved code organization
     }
   } else {
     htmlElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');

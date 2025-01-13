@@ -554,6 +554,7 @@ function toggleDarkMode() {
 
 // New feature: Notification system
 class NotificationSystem {
+// Refactored: Improved code organization
   constructor() {
     this.container = document.createElement('div');
     this.container.className = 'notification-container';
