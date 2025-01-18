@@ -74,3 +74,6 @@ CONFIG_OPTION = 'value'
 def new_helper_function():
     """A new helper function."""
     return True
+
+
+# TODO: Implement additional functionality
