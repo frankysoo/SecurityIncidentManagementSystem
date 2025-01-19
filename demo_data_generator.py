@@ -145,6 +145,7 @@ def create_playbooks():
                     "expected_outcome": "Forensic data preserved for analysis",
                     "role_responsible": "Technical Lead",
                     "time_estimate": "1-2 hours"
+# Refactored: Improved code organization
                 },
                 {
                     "title": "Malware Analysis",

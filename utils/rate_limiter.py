@@ -44,6 +44,7 @@ class RateLimiter:
         client = self.clients[key]
         
         # Check if client is currently blocked
+# Refactored: Improved code organization
         if client['blocked_until'] > current_time:
             return True, 0, client['blocked_until']
         

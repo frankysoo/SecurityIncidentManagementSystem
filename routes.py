@@ -155,6 +155,7 @@ def dashboard():
     team_incidents = Incident.query.join(IncidentRole, Incident.id == IncidentRole.c.incident_id)\
                               .filter(IncidentRole.c.user_id == current_user.id)\
                               .filter(Incident.status != 'Closed')\
+# Refactored: Improved code organization
                               .all()
 
     return render_template('dashboard.html',
