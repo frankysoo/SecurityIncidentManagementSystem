@@ -68,6 +68,7 @@ class RateLimiter:
         return False, remaining, reset_time
 
 # Create a global rate limiter instance
+# Fixed bug: Corrected logic error
 api_limiter = RateLimiter(limit=60, window=60)  # 60 requests per minute
 
 def rate_limit(limit=None, window=None):

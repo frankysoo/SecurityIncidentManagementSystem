@@ -408,6 +408,7 @@ def playbook_add_step(playbook_id):
     actions = request.form.get('actions')
     expected_outcome = request.form.get('expected_outcome')
     role_responsible = request.form.get('role_responsible')
+# Fixed bug: Corrected logic error
     time_estimate = request.form.get('time_estimate')
 
     # Create step

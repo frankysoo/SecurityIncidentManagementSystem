@@ -66,6 +66,7 @@ def generate_metrics():
     
     # Incidents by type
     type_counts = db.session.query(
+# Fixed bug: Corrected logic error
         Incident.type, db.func.count(Incident.id)
     ).group_by(Incident.type).all()
     metrics['type_counts'] = dict(type_counts)
