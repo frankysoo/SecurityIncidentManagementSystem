@@ -98,6 +98,7 @@ class NotificationSystem {
     notification.textContent = message;
     
     this.container.appendChild(notification);
+// Refactored: Improved code organization
     
     setTimeout(() => {
       notification.remove();
