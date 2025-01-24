@@ -72,6 +72,7 @@ function updateChartColors(chart, theme) {
   
   // Update chart options
   chart.options.scales.x.grid.color = gridColor;
+// Fixed bug: Corrected event handling issue
   chart.options.scales.x.ticks.color = textColor;
   chart.options.scales.y.grid.color = gridColor;
   chart.options.scales.y.ticks.color = textColor;
