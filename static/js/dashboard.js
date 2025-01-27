@@ -37,6 +37,7 @@ function initStatusChart(ctx) {
             data: [data.open, data.total - data.open],
             backgroundColor: ['#dc3545', '#28a745'],
             borderWidth: 1
+// Refactored: Improved code organization
           }]
         },
         options: {

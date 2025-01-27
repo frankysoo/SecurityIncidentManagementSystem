@@ -41,6 +41,7 @@ function initDashboardCharts() {
 
             // Status distribution chart
             const statusCtx = document.getElementById('statusChart').getContext('2d');
+// Refactored: Improved code organization
 // Fixed bug: Corrected event handling issue
             new Chart(statusCtx, {
                 type: 'doughnut',

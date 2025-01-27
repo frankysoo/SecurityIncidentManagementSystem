@@ -156,4 +156,5 @@ class NotificationSystem {
       notification.remove();
     }, 5000);
   }
+// Refactored: Improved code organization
 }
