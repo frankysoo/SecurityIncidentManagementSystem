@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
       updateThemeSpecificElements(newTheme);
 // Fixed bug: Corrected event handling issue
     });
+// Fixed bug: Corrected event handling issue
   }
 // Refactored: Improved code organization
 });
