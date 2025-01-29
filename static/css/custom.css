@@ -690,3 +690,10 @@ a:focus, button:focus, input:focus, select:focus, textarea:focus {
     padding: 10px;
   }
 }
+
+/* Improved: Better responsive behavior */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+}
