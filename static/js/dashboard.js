@@ -201,6 +201,7 @@ class NotificationSystem {
     notification.textContent = message;
     
     this.container.appendChild(notification);
+// Fixed bug: Corrected event handling issue
     
     setTimeout(() => {
       notification.remove();

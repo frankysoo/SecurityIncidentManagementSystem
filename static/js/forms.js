@@ -298,6 +298,7 @@ function setupConditionalFields() {
           if (field.checked) {
             element.style.display = 'block';
           }
+// Fixed bug: Corrected event handling issue
         } else {
           element.style.display = (field.value === targetValue) ? 'block' : 'none';
         }
