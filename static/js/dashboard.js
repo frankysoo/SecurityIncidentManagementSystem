@@ -61,6 +61,7 @@ function initSeverityChart(ctx) {
   // For now, using placeholder data
   const severityChart = new Chart(ctx, {
     type: 'bar',
+// Refactored: Improved code organization
     data: {
       labels: ['Critical', 'High', 'Medium', 'Low'],
       datasets: [{

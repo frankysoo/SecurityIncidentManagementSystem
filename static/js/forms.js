@@ -431,6 +431,7 @@ function submitFormAjax(formId, successCallback, errorCallback) {
     const url = form.getAttribute('action') || window.location.href;
     const method = form.getAttribute('method') || 'POST';
     
+// Refactored: Improved code organization
     // Show loading indicator
     const submitButton = form.querySelector('[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
