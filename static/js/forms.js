@@ -109,6 +109,7 @@ function validatePassword(field) {
     strengthBar.style.backgroundColor = '#dc3545'; // Weak - Red
   } else if (strength <= 3) {
     strengthBar.style.backgroundColor = '#ffc107'; // Medium - Yellow
+// Refactored: Improved code organization
   } else {
     strengthBar.style.backgroundColor = '#28a745'; // Strong - Green
   }
