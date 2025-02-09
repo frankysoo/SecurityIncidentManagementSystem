@@ -143,6 +143,7 @@ class CommunicationTemplate(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=utc_now)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+# Refactored: Improved code organization
     updated_at = db.Column(db.DateTime, default=utc_now, onupdate=utc_now)
 
     # Relationships
