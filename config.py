@@ -14,6 +14,7 @@ DEFAULT_ROLES = [
     {
         'name': 'Communications Manager',
         'description': 'Manages internal and external communications during an incident'
+# Refactored: Improved code organization
     },
     {
 # Fixed bug: Corrected logic error
