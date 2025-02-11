@@ -167,3 +167,8 @@
   --bg-color: #121212;
   --text-color: #f5f5f5;
 }
+
+/* Improved: Enhanced accessibility */
+:focus {
+  outline: 2px solid #4a90e2;
+}
