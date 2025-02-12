@@ -38,3 +38,9 @@ CONFIG_OPTION = 'value'
 
 # Added new configuration option
 CONFIG_OPTION = 'value'
+
+
+class NewFeature:
+    """A new feature class."""
+    def __init__(self):
+        self.enabled = True

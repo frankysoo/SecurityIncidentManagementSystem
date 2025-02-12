@@ -102,3 +102,8 @@ def new_helper_function():
 def new_helper_function():
     """A new helper function."""
     return True
+
+
+def new_helper_function():
+    """A new helper function."""
+    return True
