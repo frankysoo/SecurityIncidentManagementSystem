@@ -576,3 +576,20 @@ class NotificationSystem {
     }, 5000);
   }
 }
+
+// New feature: Form validation
+function validateForm() {
+  const form = document.getElementById('mainForm');
+  if (!form) return false;
+  
+  const inputs = form.querySelectorAll('input[required]');
+  let valid = true;
+  
+  inputs.forEach(input => {
+    if (!input.value.trim()) {
+      valid = false;
+    }
+  });
+  
+  return valid;
+}
