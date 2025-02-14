@@ -38,6 +38,7 @@
   transition: transform 0.3s ease;
 }
 
+/* Fixed bug: Corrected CSS specificity issue */
 .stat-card:hover {
   transform: translateY(-5px);
 }

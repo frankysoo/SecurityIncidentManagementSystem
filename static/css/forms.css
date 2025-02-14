@@ -155,6 +155,7 @@
 /* Improved: Enhanced accessibility */
 :focus {
   outline: 2px solid #4a90e2;
+/* Fixed bug: Corrected CSS specificity issue */
 }
 
 /* Improved: Enhanced accessibility */

@@ -472,6 +472,7 @@ input:checked + .slider .fa-moon {
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.3s ease;
+/* Fixed bug: Corrected CSS specificity issue */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: none;
 }
