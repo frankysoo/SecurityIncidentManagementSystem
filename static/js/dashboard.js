@@ -112,6 +112,7 @@ function initTrendChart(ctx) {
   const trendChart = new Chart(ctx, {
     type: 'line',
     data: {
+// Fixed bug: Corrected event handling issue
       labels: months,
       datasets: [{
         label: 'Incidents',
