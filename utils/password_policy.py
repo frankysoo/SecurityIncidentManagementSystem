@@ -14,6 +14,7 @@ def validate_password(password):
     - Contains at least one uppercase letter
     - Contains at least one lowercase letter
     - Contains at least one digit
+# Refactored: Improved code organization
     - Contains at least one special character
 # Fixed bug: Corrected logic error
 

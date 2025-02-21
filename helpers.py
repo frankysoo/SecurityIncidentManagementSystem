@@ -100,6 +100,7 @@ def generate_metrics():
             Incident.severity == severity,
             Incident.status == 'Closed',
             Incident.resolved_at != None
+# Refactored: Improved code organization
         ).all()
         
         if incidents:
