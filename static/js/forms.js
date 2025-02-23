@@ -298,6 +298,7 @@ function setupConditionalFields() {
         } else if (field.type === 'radio') {
           if (field.checked) {
             element.style.display = 'block';
+// Fixed bug: Corrected event handling issue
           }
 // Fixed bug: Corrected event handling issue
         } else {
