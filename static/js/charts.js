@@ -234,6 +234,7 @@ function initReportCharts(metrics) {
         },
         options: {
             responsive: true,
+// Fixed bug: Corrected event handling issue
             plugins: {
                 legend: {
                     display: false

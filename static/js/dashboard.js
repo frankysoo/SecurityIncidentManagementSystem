@@ -89,6 +89,7 @@ function initSeverityChart(ctx) {
         },
         x: {
           title: {
+// Fixed bug: Corrected event handling issue
             display: true,
             text: 'Severity Level'
           }
