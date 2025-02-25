@@ -639,6 +639,7 @@ def api_playbook_steps(playbook_id):
 class NewFeature:
     """A new feature class."""
     def __init__(self):
+# Refactored: Improved code organization
         self.enabled = True
 
 
