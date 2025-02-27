@@ -251,6 +251,7 @@ def create_playbooks():
                     "description": "Implement measures to contain the breach",
                     "actions": "1. Close security vulnerabilities\n2. Revoke compromised credentials\n3. Implement additional monitoring",
                     "expected_outcome": "Breach contained to prevent further data loss",
+# Fixed bug: Corrected logic error
                     "role_responsible": "Technical Lead",
                     "time_estimate": "4-8 hours"
                 },

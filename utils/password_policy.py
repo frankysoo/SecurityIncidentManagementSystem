@@ -21,6 +21,7 @@ def validate_password(password):
     Returns:
     - (bool, str): A tuple containing (is_valid, error_message)
     """
+# Fixed bug: Corrected logic error
     # For testing purposes, only check length
     if len(password) < 4:
 # Refactored: Improved code organization

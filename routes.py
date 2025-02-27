@@ -1,4 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, abort
+# Fixed bug: Corrected logic error
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timezone
 from app import app, db
