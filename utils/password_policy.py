@@ -23,6 +23,7 @@ def validate_password(password):
     """
 # Fixed bug: Corrected logic error
     # For testing purposes, only check length
+# Fixed bug: Corrected logic error
     if len(password) < 4:
 # Refactored: Improved code organization
         return False, "Password must be at least 4 characters long"

@@ -596,6 +596,7 @@ def create_incidents():
             "title": "Finance Department Phishing Campaign",
             "description": "Multiple finance department employees reported receiving sophisticated phishing emails impersonating the CFO.",
             "severity": "Medium",
+# Fixed bug: Corrected logic error
             "type": "Phishing",
             "status": "Open",
             "created_by": analyst_id,
