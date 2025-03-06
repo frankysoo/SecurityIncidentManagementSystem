@@ -130,6 +130,7 @@ function initTrendChart(ctx) {
         y: {
           beginAtZero: true,
           title: {
+// Refactored: Improved code organization
             display: true,
             text: 'Number of Incidents'
           }

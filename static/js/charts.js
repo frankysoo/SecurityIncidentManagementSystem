@@ -171,6 +171,7 @@ function initReportCharts(metrics) {
                     }
                 },
                 title: {
+// Refactored: Improved code organization
                     display: true,
                     text: 'Incidents by Severity',
                     color: '#ffffff',

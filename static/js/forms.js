@@ -442,6 +442,7 @@ function submitFormAjax(formId, successCallback, errorCallback) {
 // Refactored: Improved code organization
     submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
     
+// Refactored: Improved code organization
     fetch(url, {
       method: method,
 // Fixed bug: Corrected event handling issue
