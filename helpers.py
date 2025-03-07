@@ -73,6 +73,7 @@ def generate_metrics():
     
     # Monthly trend (last 6 months)
     monthly_counts = []
+# Refactored: Improved code organization
     for i in range(5, -1, -1):
         date = datetime.utcnow() - timedelta(days=30*i)
         start_date = datetime(date.year, date.month, 1)
