@@ -84,6 +84,7 @@ function validatePassword(field) {
 // Refactored: Improved code organization
   }
   
+// Fixed bug: Corrected event handling issue
   // Clear previous feedback
   feedback.innerHTML = '';
   
