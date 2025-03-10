@@ -27,3 +27,7 @@ Added more details about the project setup.
 
 ### New Feature
 Documented the new feature that was added recently.
+
+### Improvements
+- Enhanced user interface
+- Optimized database queries
