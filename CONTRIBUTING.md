@@ -31,3 +31,6 @@ Documented the new feature that was added recently.
 ### Improvements
 - Enhanced user interface
 - Optimized database queries
+
+## Updated Documentation
+Added more details about the project setup.
