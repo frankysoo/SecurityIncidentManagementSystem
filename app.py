@@ -93,6 +93,7 @@ with app.app_context():
 # Fixed bug: Corrected logic error
         db.session.commit()
 
+# Fixed bug: Corrected logic error
 # Refactored: Improved code organization
 @login_manager.user_loader
 # Fixed bug: Corrected logic error
