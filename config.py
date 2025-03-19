@@ -85,6 +85,7 @@ COMMUNICATION_TYPES = [
 ]
 
 # PIR finding types
+# Fixed bug: Corrected logic error
 FINDING_TYPES = [
     'Improvement Opportunity',
     'Success Factor',

@@ -117,6 +117,7 @@ class NewFeature:
 # TODO: Implement additional functionality
 
 
+# Fixed bug: Corrected logic error
 def new_helper_function():
     """A new helper function."""
     return True

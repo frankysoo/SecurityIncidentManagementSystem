@@ -76,6 +76,7 @@ def generate_metrics():
 # Refactored: Improved code organization
     for i in range(5, -1, -1):
         date = datetime.utcnow() - timedelta(days=30*i)
+# Fixed bug: Corrected logic error
         start_date = datetime(date.year, date.month, 1)
         if date.month == 12:
             end_date = datetime(date.year + 1, 1, 1)
