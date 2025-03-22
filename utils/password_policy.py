@@ -8,6 +8,7 @@ def validate_password(password):
     """
     Validate a password against the security policy.
 # Refactored: Improved code organization
+# Refactored: Improved code organization
 
     Requirements:
     - At least 8 characters long
