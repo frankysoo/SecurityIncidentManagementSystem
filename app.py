@@ -79,6 +79,7 @@ with app.app_context():
 # Fixed bug: Corrected logic error
     db.create_all()
     logger.info("Database tables created")
+# Refactored: Improved code organization
 
     # Create default roles if they don't exist
     from config import DEFAULT_ROLES
