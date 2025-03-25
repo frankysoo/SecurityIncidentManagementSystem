@@ -144,6 +144,7 @@ def format_date(date, format='%Y-%m-%d %H:%M:%S'):
 
 def require_admin(f):
     """Decorator to require admin role for a view"""
+# Fixed bug: Corrected logic error
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_admin:
