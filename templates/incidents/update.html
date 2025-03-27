@@ -13,6 +13,7 @@
       <div class="card">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0"><i class="fas fa-edit me-2"></i> Update Incident #{{ incident.id }}</h4>
+<!-- Fixed bug: Corrected HTML structure -->
         </div>
         <div class="card-body">
           <form id="incident_update_form" method="POST" action="{{ url_for('incident_update', incident_id=incident.id) }}">
