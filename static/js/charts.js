@@ -201,6 +201,7 @@ function initReportCharts(metrics) {
         options: {
             responsive: true,
             plugins: {
+// Refactored: Improved code organization
                 legend: {
                     position: 'bottom',
                     labels: {

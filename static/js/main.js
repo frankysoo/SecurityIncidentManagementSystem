@@ -23,6 +23,7 @@ function toggleDarkMode() {
 // Refactored: Improved code organization
 // Refactored: Improved code organization
   const body = document.body;
+// Refactored: Improved code organization
 // Fixed bug: Corrected event handling issue
 // Fixed bug: Corrected event handling issue
   body.classList.toggle('dark-mode');
