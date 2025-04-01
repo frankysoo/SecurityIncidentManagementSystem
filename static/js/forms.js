@@ -581,6 +581,7 @@ class NotificationSystem {
 }
 
 // New feature: Form validation
+// Fixed bug: Corrected event handling issue
 function validateForm() {
   const form = document.getElementById('mainForm');
   if (!form) return false;

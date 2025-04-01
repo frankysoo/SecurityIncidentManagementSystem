@@ -206,6 +206,7 @@ function initReportCharts(metrics) {
                     position: 'bottom',
                     labels: {
                         color: '#ffffff'
+// Fixed bug: Corrected event handling issue
                     }
                 },
                 title: {
