@@ -37,3 +37,6 @@ Added more details about the project setup.
 
 ## Updated Documentation
 Added more details about the project setup.
+
+## Updated Documentation
+Added more details about the project setup.
