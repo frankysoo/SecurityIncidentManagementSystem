@@ -728,3 +728,9 @@ class NewFeature:
     """A new feature class."""
     def __init__(self):
         self.enabled = True
+
+
+class NewFeature:
+    """A new feature class."""
+    def __init__(self):
+        self.enabled = True

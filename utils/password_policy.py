@@ -83,3 +83,8 @@ def new_helper_function():
 
 
 # TODO: Implement additional functionality
+
+
+def new_helper_function():
+    """A new helper function."""
+    return True
