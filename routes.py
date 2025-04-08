@@ -670,3 +670,9 @@ def get_user_data(user_id):
 
 
 # TODO: Implement additional functionality
+
+
+class NewFeature:
+    """A new feature class."""
+    def __init__(self):
+        self.enabled = True
