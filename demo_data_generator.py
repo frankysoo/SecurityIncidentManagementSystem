@@ -734,3 +734,8 @@ class NewFeature:
     """A new feature class."""
     def __init__(self):
         self.enabled = True
+
+
+def new_helper_function():
+    """A new helper function."""
+    return True
