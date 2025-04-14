@@ -27,7 +27,10 @@
     <div class="col-md-3 mb-3">
       <div class="card stat-card bg-primary text-white">
         <div class="card-body text-center">
-          <div class="stat-value" id="totalIncidents">{{ stats.total }}</div>
+          <div class="d-flex align-items-center justify-content-center mb-3">
+            <i class="fas fa-shield-alt fa-2x me-3 opacity-75"></i>
+            <div class="stat-value" id="totalIncidents">{{ stats.total }}</div>
+          </div>
           <div class="stat-label">Total Incidents</div>
         </div>
       </div>
@@ -35,7 +38,10 @@
     <div class="col-md-3 mb-3">
       <div class="card stat-card bg-danger text-white">
         <div class="card-body text-center">
-          <div class="stat-value" id="openIncidents">{{ stats.open }}</div>
+          <div class="d-flex align-items-center justify-content-center mb-3">
+            <i class="fas fa-exclamation-circle fa-2x me-3 opacity-75"></i>
+            <div class="stat-value" id="openIncidents">{{ stats.open }}</div>
+          </div>
           <div class="stat-label">Open Incidents</div>
         </div>
       </div>
@@ -43,7 +49,10 @@
     <div class="col-md-3 mb-3">
       <div class="card stat-card bg-warning text-dark">
         <div class="card-body text-center">
-          <div class="stat-value" id="criticalIncidents">{{ stats.critical }}</div>
+          <div class="d-flex align-items-center justify-content-center mb-3">
+            <i class="fas fa-radiation fa-2x me-3 opacity-75"></i>
+            <div class="stat-value" id="criticalIncidents">{{ stats.critical }}</div>
+          </div>
           <div class="stat-label">Critical Incidents</div>
         </div>
       </div>
@@ -51,7 +60,10 @@
     <div class="col-md-3 mb-3">
       <div class="card stat-card bg-info text-white">
         <div class="card-body text-center">
-          <div class="stat-value" id="unassignedIncidents">{{ stats.unassigned }}</div>
+          <div class="d-flex align-items-center justify-content-center mb-3">
+            <i class="fas fa-user-slash fa-2x me-3 opacity-75"></i>
+            <div class="stat-value" id="unassignedIncidents">{{ stats.unassigned }}</div>
+          </div>
           <div class="stat-label">Unassigned</div>
         </div>
       </div>
@@ -61,26 +73,32 @@
   <!-- Charts Row -->
   <div class="row mb-4">
     <div class="col-md-4 mb-3">
-      <div class="card h-100">
-        <div class="card-header">Incident Status</div>
-        <div class="card-body">
-          <canvas id="incidentStatusChart"></canvas>
+      <div class="card h-100 incident-card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Incident Status</h5>
+        </div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <canvas id="incidentStatusChart" height="220"></canvas>
         </div>
       </div>
     </div>
     <div class="col-md-4 mb-3">
-      <div class="card h-100">
-        <div class="card-header">Severity Distribution</div>
-        <div class="card-body">
-          <canvas id="incidentSeverityChart"></canvas>
+      <div class="card h-100 incident-card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Severity Distribution</h5>
+        </div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <canvas id="incidentSeverityChart" height="220"></canvas>
         </div>
       </div>
     </div>
     <div class="col-md-4 mb-3">
-      <div class="card h-100">
-        <div class="card-header">Monthly Trend</div>
-        <div class="card-body">
-          <canvas id="incidentTrendChart"></canvas>
+      <div class="card h-100 incident-card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i> Monthly Trend</h5>
+        </div>
+        <div class="card-body d-flex justify-content-center align-items-center">
+          <canvas id="incidentTrendChart" height="220"></canvas>
         </div>
       </div>
     </div>
@@ -89,7 +107,7 @@
   <!-- Recent Incidents -->
   <div class="row mb-4">
     <div class="col-md-6">
-      <div class="card">
+      <div class="card incident-card">
         <div class="card-header">
           <h5 class="mb-0"><i class="fas fa-clock me-2"></i> Recent Incidents</h5>
         </div>
@@ -98,30 +116,32 @@
             {% for incident in recent_incidents %}
               <a href="{{ url_for('incident_view', incident_id=incident.id) }}" class="list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-between">
-                  <h6 class="mb-1">{{ incident.title }}</h6>
-                  <small>{{ incident.created_at|format_date }}</small>
+                  <h6 class="mb-1 fw-bold">{{ incident.title }}</h6>
+                  <small class="text-muted">{{ incident.created_at|format_date }}</small>
                 </div>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center mt-2">
                   <span class="badge severity-{{ incident.severity.lower() }} me-2">{{ incident.severity }}</span>
                   <span class="badge status-{{ incident.status.lower() }}">{{ incident.status }}</span>
-                  <small class="ms-auto">Type: {{ incident.type }}</small>
+                  <small class="ms-auto text-muted">Type: {{ incident.type }}</small>
                 </div>
               </a>
             {% endfor %}
           {% else %}
-            <div class="list-group-item text-center text-muted">
-              No incidents recorded yet
+            <div class="list-group-item text-center text-muted py-4">
+              <i class="fas fa-info-circle me-2"></i> No incidents recorded yet
             </div>
           {% endif %}
         </div>
         <div class="card-footer text-center">
-          <a href="{{ url_for('incident_list') }}" class="btn btn-sm btn-outline-primary">View All Incidents</a>
+          <a href="{{ url_for('incident_list') }}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-list me-1"></i> View All Incidents
+          </a>
         </div>
       </div>
     </div>
     
     <div class="col-md-6">
-      <div class="card mb-4">
+      <div class="card incident-card mb-4">
         <div class="card-header">
           <h5 class="mb-0"><i class="fas fa-tasks me-2"></i> My Assigned Incidents</h5>
         </div>
@@ -130,24 +150,24 @@
             {% for incident in assigned_incidents %}
               <a href="{{ url_for('incident_view', incident_id=incident.id) }}" class="list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-between">
-                  <h6 class="mb-1">{{ incident.title }}</h6>
-                  <small>{{ incident.created_at|format_date }}</small>
+                  <h6 class="mb-1 fw-bold">{{ incident.title }}</h6>
+                  <small class="text-muted">{{ incident.created_at|format_date }}</small>
                 </div>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center mt-2">
                   <span class="badge severity-{{ incident.severity.lower() }} me-2">{{ incident.severity }}</span>
                   <span class="badge status-{{ incident.status.lower() }}">{{ incident.status }}</span>
                 </div>
               </a>
             {% endfor %}
           {% else %}
-            <div class="list-group-item text-center text-muted">
-              No incidents assigned to you
+            <div class="list-group-item text-center text-muted py-4">
+              <i class="fas fa-clipboard-check me-2"></i> No incidents assigned to you
             </div>
           {% endif %}
         </div>
       </div>
       
-      <div class="card">
+      <div class="card incident-card">
         <div class="card-header">
           <h5 class="mb-0"><i class="fas fa-users me-2"></i> Team Incidents</h5>
         </div>
@@ -156,18 +176,18 @@
             {% for incident in team_incidents %}
               <a href="{{ url_for('incident_view', incident_id=incident.id) }}" class="list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-between">
-                  <h6 class="mb-1">{{ incident.title }}</h6>
-                  <small>{{ incident.created_at|format_date }}</small>
+                  <h6 class="mb-1 fw-bold">{{ incident.title }}</h6>
+                  <small class="text-muted">{{ incident.created_at|format_date }}</small>
                 </div>
-                <div class="d-flex align-items-center">
+                <div class="d-flex align-items-center mt-2">
                   <span class="badge severity-{{ incident.severity.lower() }} me-2">{{ incident.severity }}</span>
                   <span class="badge status-{{ incident.status.lower() }}">{{ incident.status }}</span>
                 </div>
               </a>
             {% endfor %}
           {% else %}
-            <div class="list-group-item text-center text-muted">
-              You're not part of any active incident teams
+            <div class="list-group-item text-center text-muted py-4">
+              <i class="fas fa-user-friends me-2"></i> You're not part of any active incident teams
             </div>
           {% endif %}
         </div>
