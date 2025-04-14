@@ -1,51 +1,95 @@
-{% extends 'layout.html' %}
+{% extends "base.html" %}
 
 {% block title %}Security Incident Management System - Home{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
-        <div class="col-md-8 text-center">
-            <h1 class="display-4 mb-4">Security Incident Management System</h1>
-            <p class="lead mb-5">A comprehensive system for tracking, responding to, and analyzing security incidents following NIST SP 800-61 and ISO 27035 frameworks.</p>
-            
-            <div class="card bg-dark mb-5">
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-4 mb-3">
-                            <div class="p-3">
-                                <i class="fas fa-clipboard-list fa-3x mb-3"></i>
-                                <h5>Incident Tracking</h5>
-                                <p>Log and track security incidents through their entire lifecycle</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="p-3">
-                                <i class="fas fa-book fa-3x mb-3"></i>
-                                <h5>Response Playbooks</h5>
-                                <p>Follow standardized response procedures for common incidents</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="p-3">
-                                <i class="fas fa-chart-line fa-3x mb-3"></i>
-                                <h5>Metrics & Analysis</h5>
-                                <p>Gain insights through comprehensive incident analytics</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="row justify-content-center">
+  <div class="col-md-10">
+    <div class="card">
+      <div class="card-body text-center">
+        <h1 class="display-4 mb-4">
+          <i class="fas fa-shield-alt text-primary me-3"></i>
+          Security Incident Management System
+        </h1>
+        <p class="lead">
+          Comprehensive platform for tracking, responding to, and analyzing security incidents
+        </p>
+        <hr class="my-4">
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <h3>Incident Management</h3>
+                <p>Track and manage security incidents throughout their lifecycle</p>
+              </div>
             </div>
-            
-            <div class="d-grid gap-2 d-md-block">
-                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-md-2">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login
-                </a>
-                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg">
-                    <i class="fas fa-info-circle me-2"></i>Learn More
-                </a>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <i class="fas fa-book fa-3x text-info mb-3"></i>
+                <h3>Playbooks</h3>
+                <p>Standardized response procedures for common incident types</p>
+              </div>
             </div>
+          </div>
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                <h3>Analytics</h3>
+                <p>Measure and improve your security incident response capabilities</p>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="mt-4">
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+              <i class="fas fa-tachometer-alt me-2"></i> Go to Dashboard
+            </a>
+          {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">
+              <i class="fas fa-sign-in-alt me-2"></i> Login
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-outline-secondary btn-lg">
+              <i class="fas fa-user-plus me-2"></i> Register
+            </a>
+          {% endif %}
+        </div>
+      </div>
     </div>
+    
+    <div class="card mt-4">
+      <div class="card-body">
+        <h2 class="card-title">Compliant with Industry Standards</h2>
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-3">
+              <div class="flex-shrink-0 me-3">
+                <i class="fas fa-check-circle fa-2x text-success"></i>
+              </div>
+              <div>
+                <h5>NIST SP 800-61</h5>
+                <p class="text-muted">Computer Security Incident Handling Guide</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex align-items-start mb-3">
+              <div class="flex-shrink-0 me-3">
+                <i class="fas fa-check-circle fa-2x text-success"></i>
+              </div>
+              <div>
+                <h5>ISO/IEC 27035</h5>
+                <p class="text-muted">Information Security Incident Management</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

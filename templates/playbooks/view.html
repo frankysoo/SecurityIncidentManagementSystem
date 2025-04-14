@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Playbook: {{ playbook.name }} - Security Incident Management System{% endblock %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/playbook.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-book me-2"></i> {{ playbook.name }}</h1>
+    <div>
+      {% if current_user.has_role('Playbook Author') or current_user.is_admin %}
+        <button class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editPlaybookModal">
+          <i class="fas fa-edit me-2"></i> Edit Details
+        </button>
+      {% endif %}
+      <a href="{{ url_for('playbook_list') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to Playbooks
+      </a>
+    </div>
+  </div>
+  
+  <!-- Playbook Details Card -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Playbook Details</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <h5>Description</h5>
+          <p>{{ playbook.description }}</p>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <div class="mb-2">
+                <strong>Incident Type:</strong>
+                <span class="float-end">{{ playbook.incident_type }}</span>
+              </div>
+              <div class="mb-2">
+                <strong>Severity Levels:</strong>
+                <span class="float-end">{{ playbook.severity_levels }}</span>
+              </div>
+              <div class="mb-2">
+                <strong>Version:</strong>
+                <span class="float-end">{{ playbook.version }}</span>
+              </div>
+              <div class="mb-2">
+                <strong>Status:</strong>
+                <span class="float-end badge {% if playbook.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                  {{ 'Active' if playbook.is_active else 'Inactive' }}
+                </span>
+              </div>
+              <div class="mb-2">
+                <strong>Created By:</strong>
+                <span class="float-end">{{ playbook.creator.username }}</span>
+              </div>
+              <div class="mb-2">
+                <strong>Created At:</strong>
+                <span class="float-end">{{ playbook.created_at|format_date }}</span>
+              </div>
+              <div class="mb-2">
+                <strong>Last Updated:</strong>
+                <span class="float-end">{{ playbook.updated_at|format_date }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Playbook Steps -->
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Response Steps</h5>
+      {% if current_user.has_role('Playbook Author') or current_user.is_admin %}
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStepModal">
+          <i class="fas fa-plus me-1"></i> Add Step
+        </button>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if steps %}
+        <div id="playbook_steps_sortable">
+          {% for step in steps %}
+            <div class="card step-card mb-3" data-step-id="{{ step.id }}">
+              <div class="card-header">
+                <span class="step-order">{{ step.order }}.</span> {{ step.title }}
+                {% if current_user.has_role('Playbook Author') or current_user.is_admin %}
+                  <div class="float-end">
+                    <span class="step-drag-handle me-2"><i class="fas fa-grip-vertical"></i></span>
+                    <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editStepModal{{ step.id }}">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+              <div class="card-body">
+                {% if step.description %}
+                  <p>{{ step.description }}</p>
+                {% endif %}
+                
+                <div class="card mb-3">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Actions to Take</h6>
+                  </div>
+                  <div class="card-body">
+                    <p>{{ step.actions }}</p>
+                  </div>
+                </div>
+                
+                {% if step.expected_outcome %}
+                  <div class="card mb-3">
+                    <div class="card-header bg-success text-white">
+                      <h6 class="mb-0">Expected Outcome</h6>
+                    </div>
+                    <div class="card-body">
+                      <p>{{ step.expected_outcome }}</p>
+                    </div>
+                  </div>
+                {% endif %}
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <strong>Responsible Role:</strong> {{ step.role_responsible or 'Any' }}
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Estimated Time:</strong> {{ step.time_estimate or 'Not specified' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Edit Step Modal -->
+            <div class="modal fade" id="editStepModal{{ step.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Edit Step</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <form>
+                      <div class="mb-3">
+                        <label for="edit_step_title{{ step.id }}" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="edit_step_title{{ step.id }}" value="{{ step.title }}" required>
+                      </div>
+                      <div class="mb-3">
+                        <label for="edit_step_description{{ step.id }}" class="form-label">Description</label>
+                        <textarea class="form-control" id="edit_step_description{{ step.id }}" rows="2">{{ step.description }}</textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label for="edit_step_actions{{ step.id }}" class="form-label">Actions</label>
+                        <textarea class="form-control" id="edit_step_actions{{ step.id }}" rows="4" required>{{ step.actions }}</textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label for="edit_step_outcome{{ step.id }}" class="form-label">Expected Outcome</label>
+                        <textarea class="form-control" id="edit_step_outcome{{ step.id }}" rows="2">{{ step.expected_outcome }}</textarea>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label for="edit_step_role{{ step.id }}" class="form-label">Responsible Role</label>
+                          <input type="text" class="form-control" id="edit_step_role{{ step.id }}" value="{{ step.role_responsible }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label for="edit_step_time{{ step.id }}" class="form-label">Estimated Time</label>
+                          <input type="text" class="form-control" id="edit_step_time{{ step.id }}" value="{{ step.time_estimate }}">
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Save Changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i> No steps have been defined for this playbook yet.
+          {% if current_user.has_role('Playbook Author') or current_user.is_admin %}
+            Click the "Add Step" button to create the first step.
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Add Step Modal -->
+  <div class="modal fade" id="addStepModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add Response Step</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="playbook_step_form" action="{{ url_for('playbook_add_step', playbook_id=playbook.id) }}" method="post">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="title" class="form-label">Step Title</label>
+              <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+              <div class="form-text">Brief description of this step's purpose</div>
+            </div>
+            <div class="mb-3">
+              <label for="actions" class="form-label">Actions to Take</label>
+              <textarea class="form-control" id="step_actions" name="actions" rows="5" required></textarea>
+              <div class="form-text">Detailed, specific actions that should be performed during this step</div>
+            </div>
+            <div class="mb-3">
+              <label for="expected_outcome" class="form-label">Expected Outcome</label>
+              <textarea class="form-control" id="expected_outcome" name="expected_outcome" rows="2"></textarea>
+              <div class="form-text">What should be achieved after completing this step</div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="role_responsible" class="form-label">Responsible Role</label>
+                <input type="text" class="form-control" id="role_responsible" name="role_responsible">
+                <div class="form-text">Who should perform this step (e.g., Incident Commander, Technical Lead)</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="time_estimate" class="form-label">Estimated Time</label>
+                <input type="text" class="form-control" id="time_estimate" name="time_estimate">
+                <div class="form-text">How long this step typically takes (e.g., 30 minutes, 1-2 hours)</div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Step</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Edit Playbook Modal -->
+  <div class="modal fade" id="editPlaybookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Playbook Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label for="edit_name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="edit_name" value="{{ playbook.name }}" required>
+            </div>
+            <div class="mb-3">
+              <label for="edit_description" class="form-label">Description</label>
+              <textarea class="form-control" id="edit_description" rows="3">{{ playbook.description }}</textarea>
+            </div>
+            <div class="mb-3">
+              <label for="edit_incident_type" class="form-label">Incident Type</label>
+              <input type="text" class="form-control" id="edit_incident_type" value="{{ playbook.incident_type }}" required>
+            </div>
+            <div class="mb-3">
+              <label for="edit_severity" class="form-label">Applicable Severity Levels</label>
+              <input type="text" class="form-control" id="edit_severity" value="{{ playbook.severity_levels }}" required>
+              <div class="form-text">Comma-separated list of severity levels (e.g., "Critical,High,Medium")</div>
+            </div>
+            <div class="mb-3">
+              <label for="edit_version" class="form-label">Version</label>
+              <input type="text" class="form-control" id="edit_version" value="{{ playbook.version }}">
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="edit_is_active" {% if playbook.is_active %}checked{% endif %}>
+              <label class="form-check-label" for="edit_is_active">
+                Active
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

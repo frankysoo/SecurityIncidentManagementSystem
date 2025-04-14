@@ -1,184 +1,180 @@
-from datetime import datetime
 from app import db
 from flask_login import UserMixin
-import json
-from sqlalchemy.ext.mutable import MutableDict, MutableList
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
-# User Model
+# Association tables for many-to-many relationships
+UserRole = db.Table('user_roles',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True)
+)
+
+IncidentRole = db.Table('incident_roles',
+    db.Column('incident_id', db.Integer, db.ForeignKey('incident.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True)
+)
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    first_name = db.Column(db.String(64), nullable=True)
-    last_name = db.Column(db.String(64), nullable=True)
-    role = db.Column(db.String(20), default='analyst')  # admin, manager, analyst, viewer
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(64))
+    phone = db.Column(db.String(20))
+    is_active = db.Column(db.Boolean, default=True)
+    is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    last_login = db.Column(db.DateTime, nullable=True)
+    last_login = db.Column(db.DateTime)
     
     # Relationships
+    roles = db.relationship('Role', secondary=UserRole, backref=db.backref('users', lazy='dynamic'))
     incidents_created = db.relationship('Incident', backref='creator', lazy='dynamic', foreign_keys='Incident.created_by')
-    incidents_assigned = db.relationship('Incident', backref='assignee', lazy='dynamic', foreign_keys='Incident.assigned_to')
-    comments = db.relationship('Comment', backref='author', lazy='dynamic')
-    team_memberships = db.relationship('TeamMember', backref='user', lazy='dynamic')
+    incident_updates = db.relationship('IncidentUpdate', backref='user', lazy='dynamic')
+    incident_roles = db.relationship('Role', secondary=IncidentRole, backref=db.backref('incident_users', lazy='dynamic'))
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+    def has_role(self, role_name):
+        return any(role.name == role_name for role in self.roles)
     
     def __repr__(self):
         return f'<User {self.username}>'
-    
-    def get_full_name(self):
-        if self.first_name and self.last_name:
-            return f"{self.first_name} {self.last_name}"
-        return self.username
 
-# Team Model
-class Team(db.Model):
+class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    members = db.relationship('TeamMember', backref='team', lazy='dynamic')
+    name = db.Column(db.String(64), unique=True, nullable=False)
+    description = db.Column(db.String(256))
     
     def __repr__(self):
-        return f'<Team {self.name}>'
+        return f'<Role {self.name}>'
 
-# Team Member Model (Join Table with Role)
-class TeamMember(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    role = db.Column(db.String(50), nullable=False)  # Incident Commander, Technical Lead, Comms Lead, etc.
-    
-    def __repr__(self):
-        return f'<TeamMember {self.role}>'
-
-# Incident Model
 class Incident(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='open')  # open, in-progress, contained, resolved, closed
-    severity = db.Column(db.String(20), nullable=False)  # critical, high, medium, low
-    incident_type = db.Column(db.String(50), nullable=False)  # malware, phishing, data breach, etc.
+    title = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    severity = db.Column(db.String(20), nullable=False)  # Critical, High, Medium, Low
+    status = db.Column(db.String(20), nullable=False)  # Open, Investigating, Contained, Eradicated, Resolved, Closed
+    type = db.Column(db.String(64), nullable=False)  # Malware, Phishing, Data Breach, etc.
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    assigned_team = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=True)
-    resolution = db.Column(db.Text, nullable=True)
-    detection_time = db.Column(db.DateTime, nullable=True)
-    resolution_time = db.Column(db.DateTime, nullable=True)
-    affected_systems = db.Column(MutableList.as_mutable(db.JSON), default=list)
-    tags = db.Column(MutableList.as_mutable(db.JSON), default=list)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    detected_at = db.Column(db.DateTime, nullable=False)
+    resolved_at = db.Column(db.DateTime)
+    assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'))
     
     # Relationships
-    team = db.relationship('Team', backref='incidents')
-    activities = db.relationship('Activity', backref='incident', lazy='dynamic')
-    comments = db.relationship('Comment', backref='incident', lazy='dynamic')
-    attachments = db.relationship('Attachment', backref='incident', lazy='dynamic')
+    updates = db.relationship('IncidentUpdate', backref='incident', lazy='dynamic', cascade='all, delete-orphan')
+    pir = db.relationship('PIR', backref='incident', uselist=False, cascade='all, delete-orphan')
+    assignee = db.relationship('User', foreign_keys=[assigned_to], backref='assigned_incidents')
+    
+    # Team members with their roles
+    team_members = db.relationship('User', secondary=IncidentRole, backref=db.backref('incidents', lazy='dynamic'))
     
     def __repr__(self):
         return f'<Incident {self.id}: {self.title}>'
-    
-    def time_to_resolve(self):
-        if self.detection_time and self.resolution_time:
-            return (self.resolution_time - self.detection_time).total_seconds() / 3600  # in hours
-        return None
 
-# Activity Model (for tracking incident response activities)
-class Activity(db.Model):
+class IncidentUpdate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    activity_type = db.Column(db.String(50), nullable=False)  # detection, analysis, containment, eradication, recovery
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationship
-    user = db.relationship('User', backref='activities')
-    
-    def __repr__(self):
-        return f'<Activity {self.id}: {self.activity_type}>'
-
-# Comment Model
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    update_type = db.Column(db.String(20), nullable=False)  # Status Update, Action Taken, Note, etc.
     content = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status_change = db.Column(db.String(20))  # If update changes incident status
     
     def __repr__(self):
-        return f'<Comment {self.id}>'
+        return f'<IncidentUpdate {self.id} for Incident {self.incident_id}>'
 
-# Attachment Model
-class Attachment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
-    filename = db.Column(db.String(255), nullable=False)
-    file_path = db.Column(db.String(255), nullable=False)
-    uploaded_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Relationship
-    user = db.relationship('User', backref='attachments')
-    
-    def __repr__(self):
-        return f'<Attachment {self.filename}>'
-
-# Playbook Model
 class Playbook(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    incident_type = db.Column(db.String(50), nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    name = db.Column(db.String(128), unique=True, nullable=False)
+    description = db.Column(db.Text)
+    incident_type = db.Column(db.String(64), nullable=False)
+    severity_levels = db.Column(db.String(64), nullable=False)  # Comma-separated list of applicable severity levels
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    steps = db.Column(MutableList.as_mutable(db.JSON), default=list)  # List of step dictionaries
-    
-    # Relationship
-    creator = db.relationship('User', backref='playbooks')
-    
-    def __repr__(self):
-        return f'<Playbook {self.title}>'
-
-# Communication Template Model
-class CommunicationTemplate(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    subject = db.Column(db.String(200), nullable=False)
-    body = db.Column(db.Text, nullable=False)
-    template_type = db.Column(db.String(50), nullable=False)  # internal, external, executive, customer
-    incident_type = db.Column(db.String(50), nullable=True)  # Optional association with incident type
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # Relationship
-    creator = db.relationship('User', backref='templates')
-    
-    def __repr__(self):
-        return f'<Template {self.name}>'
-
-# Post-Incident Review Model
-class PIR(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False)
-    conducted_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    conducted_at = db.Column(db.DateTime, default=datetime.utcnow)
-    summary = db.Column(db.Text, nullable=False)
-    what_happened = db.Column(db.Text, nullable=False)
-    what_went_well = db.Column(db.Text, nullable=False)
-    what_went_poorly = db.Column(db.Text, nullable=False)
-    root_cause = db.Column(db.Text, nullable=False)
-    action_items = db.Column(MutableList.as_mutable(db.JSON), default=list)  # List of action item dictionaries
-    lessons_learned = db.Column(db.Text, nullable=False)
+    version = db.Column(db.String(20), default='1.0')
+    is_active = db.Column(db.Boolean, default=True)
     
     # Relationships
-    incident = db.relationship('Incident', backref='pir')
-    conductor = db.relationship('User', backref='pirs_conducted')
+    steps = db.relationship('PlaybookStep', backref='playbook', lazy='dynamic', cascade='all, delete-orphan', order_by='PlaybookStep.order')
+    creator = db.relationship('User', backref='playbooks_created')
+    
+    def __repr__(self):
+        return f'<Playbook {self.name}>'
+
+class PlaybookStep(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    playbook_id = db.Column(db.Integer, db.ForeignKey('playbook.id'), nullable=False)
+    order = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(128), nullable=False)
+    description = db.Column(db.Text)
+    actions = db.Column(db.Text, nullable=False)
+    expected_outcome = db.Column(db.Text)
+    role_responsible = db.Column(db.String(64))  # Which role should perform this step
+    time_estimate = db.Column(db.String(64))  # Estimated time to complete
+    
+    def __repr__(self):
+        return f'<PlaybookStep {self.order}: {self.title}>'
+
+class CommunicationTemplate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), unique=True, nullable=False)
+    description = db.Column(db.Text)
+    template_type = db.Column(db.String(64), nullable=False)  # Internal Notification, External Notification, Status Update, etc.
+    audience = db.Column(db.String(64), nullable=False)  # Executive, Technical Team, Customers, Public, etc.
+    subject = db.Column(db.String(256))
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    creator = db.relationship('User', backref='communication_templates_created')
+    
+    def __repr__(self):
+        return f'<CommunicationTemplate {self.name}>'
+
+class PIR(db.Model):
+    """Post-Incident Review"""
+    id = db.Column(db.Integer, primary_key=True)
+    incident_id = db.Column(db.Integer, db.ForeignKey('incident.id'), nullable=False, unique=True)
+    summary = db.Column(db.Text, nullable=False)
+    timeline = db.Column(db.Text, nullable=False)
+    impact_assessment = db.Column(db.Text, nullable=False)
+    root_cause = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    scheduled_review_date = db.Column(db.DateTime)
+    review_status = db.Column(db.String(20), default='Draft')  # Draft, Under Review, Approved, Rejected
+    
+    # Relationships
+    findings = db.relationship('PIRFinding', backref='pir', lazy='dynamic', cascade='all, delete-orphan')
+    creator = db.relationship('User', backref='pirs_created')
     
     def __repr__(self):
         return f'<PIR for Incident {self.incident_id}>'
+
+class PIRFinding(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pir_id = db.Column(db.Integer, db.ForeignKey('pir.id'), nullable=False)
+    finding_type = db.Column(db.String(64), nullable=False)  # Improvement, Success, Failure, Risk
+    description = db.Column(db.Text, nullable=False)
+    recommendation = db.Column(db.Text)
+    assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'))
+    due_date = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default='Open')  # Open, In Progress, Completed
+    
+    # Relationships
+    assignee = db.relationship('User', backref='pir_findings_assigned')
+    
+    def __repr__(self):
+        return f'<PIRFinding {self.id} for PIR {self.pir_id}>'

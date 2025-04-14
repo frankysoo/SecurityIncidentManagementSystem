@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Post-Incident Reviews - Security Incident Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-search me-2"></i> Post-Incident Reviews</h1>
+  </div>
+  
+  <!-- Filter Card -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3">
+        <div class="col-md-5">
+          <label for="incident_type" class="form-label">Incident Type</label>
+          <select class="form-select" id="incident_type" name="incident_type">
+            <option value="">All Types</option>
+            <!-- Would be populated from the server -->
+          </select>
+        </div>
+        <div class="col-md-5">
+          <label for="review_status" class="form-label">Review Status</label>
+          <select class="form-select" id="review_status" name="review_status">
+            <option value="">All Statuses</option>
+            <option value="Draft">Draft</option>
+            <option value="Under Review">Under Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- PIRs Table -->
+  <div class="card">
+    <div class="card-body">
+      {% if pirs %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Incident ID</th>
+                <th>Incident Title</th>
+                <th>Type</th>
+                <th>Severity</th>
+                <th>Created By</th>
+                <th>Created At</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pir in pirs %}
+                <tr>
+                  <td>{{ pir.incident.id }}</td>
+                  <td>{{ pir.incident.title }}</td>
+                  <td>{{ pir.incident.type }}</td>
+                  <td>
+                    <span class="badge severity-{{ pir.incident.severity.lower() }}">
+                      {{ pir.incident.severity }}
+                    </span>
+                  </td>
+                  <td>{{ pir.creator.username }}</td>
+                  <td>{{ pir.created_at|format_date }}</td>
+                  <td>
+                    <span class="badge bg-{% if pir.review_status == 'Draft' %}secondary{% elif pir.review_status == 'Under Review' %}info{% elif pir.review_status == 'Approved' %}success{% elif pir.review_status == 'Rejected' %}danger{% endif %}">
+                      {{ pir.review_status }}
+                    </span>
+                  </td>
+                  <td>
+                    <a href="{{ url_for('pir_view', pir_id=pir.id) }}" class="btn btn-sm btn-outline-primary">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i> No Post-Incident Reviews have been created yet.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- PIR Process Guide -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">Post-Incident Review Process</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-header text-center">
+              <h6 class="mb-0">1. Preparation</h6>
+            </div>
+            <div class="card-body">
+              <ul class="mb-0">
+                <li>Schedule review meeting</li>
+                <li>Gather incident documentation</li>
+                <li>Invite necessary stakeholders</li>
+                <li>Prepare timeline for discussion</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-header text-center">
+              <h6 class="mb-0">2. Review Meeting</h6>
+            </div>
+            <div class="card-body">
+              <ul class="mb-0">
+                <li>Review incident timeline</li>
+                <li>Analyze root cause(s)</li>
+                <li>Assess impact and response</li>
+                <li>Identify what went well/poorly</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-header text-center">
+              <h6 class="mb-0">3. Document Findings</h6>
+            </div>
+            <div class="card-body">
+              <ul class="mb-0">
+                <li>Complete PIR document</li>
+                <li>Document successes and failures</li>
+                <li>Develop specific recommendations</li>
+                <li>Assign action items</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-3">
+          <div class="card h-100">
+            <div class="card-header text-center">
+              <h6 class="mb-0">4. Follow-up</h6>
+            </div>
+            <div class="card-body">
+              <ul class="mb-0">
+                <li>Distribute PIR to stakeholders</li>
+                <li>Track action item completion</li>
+                <li>Update playbooks as needed</li>
+                <li>Share lessons learned</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

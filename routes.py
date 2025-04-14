@@ -1,27 +1,18 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, abort
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
-import json
-
 from app import app, db
-from models import (
-    User, Team, TeamMember, Incident, Activity, Comment, 
-    Attachment, Playbook, CommunicationTemplate, PIR
-)
-from utils import (
-    requires_role, format_datetime, get_incident_metrics,
-    incident_type_options, severity_options, status_options,
-    activity_type_options, get_assignable_users
-)
+from models import (User, Role, Incident, IncidentUpdate, Playbook, PlaybookStep,
+                   CommunicationTemplate, PIR, PIRFinding, UserRole, IncidentRole)
+from helpers import (get_incident_stats, generate_metrics, format_date, 
+                    require_admin, get_user_roles, requires_role)
+from werkzeug.security import generate_password_hash
+import logging
 
-# Register template filters
-app.jinja_env.filters['format_datetime'] = format_datetime
+# Register custom filters
+app.jinja_env.filters['format_date'] = format_date
 
-# ------------------------------------------------------
-# Authentication Routes
-# ------------------------------------------------------
-
+# Authentication routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -33,7 +24,7 @@ def login():
         
         user = User.query.filter_by(username=username).first()
         
-        if user and check_password_hash(user.password_hash, password):
+        if user and user.check_password(password):
             login_user(user)
             user.last_login = datetime.utcnow()
             db.session.commit()
@@ -54,57 +45,55 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated and not current_user.role == 'admin':
-        return redirect(url_for('dashboard'))
+    if not User.query.count() == 0 and not current_user.is_authenticated:
+        # Only allow registration if no users exist or if logged in
+        flash('Registration is restricted', 'danger')
+        return redirect(url_for('login'))
     
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
+        phone = request.form.get('phone')
         
-        # Validate input
-        if not all([username, email, password, confirm_password]):
-            flash('All fields are required', 'danger')
-            return render_template('register.html')
-        
-        if password != confirm_password:
-            flash('Passwords do not match', 'danger')
-            return render_template('register.html')
-        
-        # Check if user already exists
+        # Check if username or email already exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists', 'danger')
             return render_template('register.html')
         
         if User.query.filter_by(email=email).first():
-            flash('Email already registered', 'danger')
+            flash('Email already exists', 'danger')
             return render_template('register.html')
         
         # Create new user
-        new_user = User(
+        user = User(
             username=username,
             email=email,
-            password_hash=generate_password_hash(password),
             first_name=first_name,
             last_name=last_name,
-            role='analyst'  # Default role for new users
+            phone=phone,
+            is_admin=User.query.count() == 0  # First user is admin
         )
+        user.set_password(password)
         
-        db.session.add(new_user)
+        # Add default roles
+        if User.query.count() == 0:
+            # First user gets all roles
+            all_roles = Role.query.all()
+            for role in all_roles:
+                user.roles.append(role)
+        
+        db.session.add(user)
         db.session.commit()
         
-        flash('Registration successful! You can now log in.', 'success')
+        flash('Account created successfully!', 'success')
         return redirect(url_for('login'))
     
     return render_template('register.html')
 
-# ------------------------------------------------------
-# Main Routes
-# ------------------------------------------------------
-
+# Main routes
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -114,669 +103,477 @@ def index():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Get counts of incidents by status and severity
-    status_counts = db.session.query(
-        Incident.status, db.func.count(Incident.id)
-    ).group_by(Incident.status).all()
-    
-    severity_counts = db.session.query(
-        Incident.severity, db.func.count(Incident.id)
-    ).group_by(Incident.severity).all()
+    # Get summary stats for dashboard
+    stats = get_incident_stats()
     
     # Get recent incidents
     recent_incidents = Incident.query.order_by(Incident.created_at.desc()).limit(5).all()
     
-    # Get assigned incidents
-    assigned_incidents = Incident.query.filter_by(assigned_to=current_user.id).all()
+    # Get incidents assigned to the current user
+    assigned_incidents = Incident.query.filter_by(assigned_to=current_user.id, status='Open').all()
     
-    # Get metrics
-    metrics = get_incident_metrics()
+    # Get incidents where user is a team member
+    team_incidents = Incident.query.join(IncidentRole, Incident.id == IncidentRole.c.incident_id)\
+                              .filter(IncidentRole.c.user_id == current_user.id)\
+                              .filter(Incident.status != 'Closed')\
+                              .all()
     
-    return render_template(
-        'reports/dashboard.html',
-        status_counts=dict(status_counts),
-        severity_counts=dict(severity_counts),
-        recent_incidents=recent_incidents,
-        assigned_incidents=assigned_incidents,
-        metrics=metrics
-    )
+    return render_template('dashboard.html', 
+                          stats=stats, 
+                          recent_incidents=recent_incidents,
+                          assigned_incidents=assigned_incidents,
+                          team_incidents=team_incidents)
 
-# ------------------------------------------------------
-# Incident Routes
-# ------------------------------------------------------
-
+# Incident routes
 @app.route('/incidents')
 @login_required
-def list_incidents():
-    # Get filter parameters
-    status = request.args.get('status')
-    severity = request.args.get('severity')
-    incident_type = request.args.get('type')
+def incident_list():
+    page = request.args.get('page', 1, type=int)
+    status_filter = request.args.get('status', '')
+    severity_filter = request.args.get('severity', '')
     
-    # Start with base query
     query = Incident.query
     
-    # Apply filters if provided
-    if status:
-        query = query.filter_by(status=status)
-    if severity:
-        query = query.filter_by(severity=severity)
-    if incident_type:
-        query = query.filter_by(incident_type=incident_type)
+    if status_filter:
+        query = query.filter(Incident.status == status_filter)
     
-    # Get paginated results
-    page = request.args.get('page', 1, type=int)
+    if severity_filter:
+        query = query.filter(Incident.severity == severity_filter)
+    
     incidents = query.order_by(Incident.created_at.desc()).paginate(page=page, per_page=10)
     
-    return render_template(
-        'incidents/list.html',
-        incidents=incidents,
-        status_options=status_options,
-        severity_options=severity_options,
-        incident_type_options=incident_type_options,
-        current_filters={
-            'status': status,
-            'severity': severity,
-            'type': incident_type
-        }
-    )
+    return render_template('incidents/list.html', 
+                          incidents=incidents,
+                          status_filter=status_filter,
+                          severity_filter=severity_filter)
 
 @app.route('/incidents/create', methods=['GET', 'POST'])
 @login_required
-def create_incident():
+def incident_create():
     if request.method == 'POST':
-        # Get form data
         title = request.form.get('title')
         description = request.form.get('description')
         severity = request.form.get('severity')
-        incident_type = request.form.get('incident_type')
-        affected_systems = request.form.get('affected_systems', '').split(',')
-        affected_systems = [system.strip() for system in affected_systems if system.strip()]
-        tags = request.form.get('tags', '').split(',')
-        tags = [tag.strip() for tag in tags if tag.strip()]
-        detection_time = request.form.get('detection_time')
-        
-        # Validate required fields
-        if not all([title, severity, incident_type]):
-            flash('Please fill in all required fields', 'danger')
-            return render_template(
-                'incidents/create.html',
-                severity_options=severity_options,
-                incident_type_options=incident_type_options
-            )
-        
-        # Process detection time if provided
-        detection_time_obj = None
-        if detection_time:
-            try:
-                detection_time_obj = datetime.strptime(detection_time, '%Y-%m-%dT%H:%M')
-            except ValueError:
-                flash('Invalid detection time format', 'danger')
-                return render_template(
-                    'incidents/create.html',
-                    severity_options=severity_options,
-                    incident_type_options=incident_type_options
-                )
+        incident_type = request.form.get('type')
+        detected_at = datetime.strptime(request.form.get('detected_at'), '%Y-%m-%dT%H:%M')
+        assigned_to = request.form.get('assigned_to')
         
         # Create new incident
-        new_incident = Incident(
+        incident = Incident(
             title=title,
             description=description,
             severity=severity,
-            incident_type=incident_type,
-            affected_systems=affected_systems,
-            tags=tags,
+            type=incident_type,
+            status='Open',
+            detected_at=detected_at,
             created_by=current_user.id,
-            detection_time=detection_time_obj,
-            status='open'
+            assigned_to=assigned_to if assigned_to else None
         )
         
-        db.session.add(new_incident)
+        db.session.add(incident)
         db.session.commit()
         
-        # Create initial activity record
-        activity = Activity(
-            incident_id=new_incident.id,
+        # Add initial update
+        update = IncidentUpdate(
+            incident_id=incident.id,
             user_id=current_user.id,
-            description=f"Incident created: {title}",
-            activity_type="detection"
+            update_type='Status Change',
+            content=f"Incident opened with severity: {severity}",
+            status_change='Open'
         )
-        db.session.add(activity)
+        
+        db.session.add(update)
         db.session.commit()
         
-        flash('Incident created successfully', 'success')
-        return redirect(url_for('view_incident', incident_id=new_incident.id))
+        flash('Incident created successfully!', 'success')
+        return redirect(url_for('incident_view', incident_id=incident.id))
     
-    return render_template(
-        'incidents/create.html',
-        severity_options=severity_options,
-        incident_type_options=incident_type_options
-    )
+    # Get all users for assignment dropdown
+    users = User.query.filter_by(is_active=True).all()
+    
+    # Get list of incident types from playbooks
+    incident_types = db.session.query(Playbook.incident_type).distinct().all()
+    incident_types = [t[0] for t in incident_types]
+    
+    return render_template('incidents/create.html', users=users, incident_types=incident_types)
 
 @app.route('/incidents/<int:incident_id>')
 @login_required
-def view_incident(incident_id):
+def incident_view(incident_id):
     incident = Incident.query.get_or_404(incident_id)
-    activities = Activity.query.filter_by(incident_id=incident_id).order_by(Activity.created_at).all()
-    comments = Comment.query.filter_by(incident_id=incident_id).order_by(Comment.created_at).all()
+    updates = IncidentUpdate.query.filter_by(incident_id=incident_id).order_by(IncidentUpdate.timestamp.desc()).all()
     
-    # Get relevant playbooks for this incident type
-    playbooks = Playbook.query.filter_by(incident_type=incident.incident_type).all()
+    # Get relevant playbooks
+    playbooks = Playbook.query.filter_by(incident_type=incident.type, is_active=True).all()
     
-    # Get communication templates relevant to this incident type
-    templates = CommunicationTemplate.query.filter(
-        (CommunicationTemplate.incident_type == incident.incident_type) | 
-        (CommunicationTemplate.incident_type.is_(None))
-    ).all()
+    # Get team members
+    team_members = db.session.query(User, Role)\
+                            .join(IncidentRole, User.id == IncidentRole.c.user_id)\
+                            .join(Role, Role.id == IncidentRole.c.role_id)\
+                            .filter(IncidentRole.c.incident_id == incident_id)\
+                            .all()
     
-    # Get assignable users
-    assignable_users = get_assignable_users()
+    # Get communication templates
+    templates = CommunicationTemplate.query.all()
     
-    # Get teams
-    teams = Team.query.all()
+    # Get PIR if exists
+    pir = PIR.query.filter_by(incident_id=incident_id).first()
     
-    return render_template(
-        'incidents/view.html',
-        incident=incident,
-        activities=activities,
-        comments=comments,
-        playbooks=playbooks,
-        templates=templates,
-        assignable_users=assignable_users,
-        teams=teams,
-        activity_type_options=activity_type_options,
-        status_options=status_options
-    )
+    return render_template('incidents/view.html', 
+                          incident=incident, 
+                          updates=updates,
+                          playbooks=playbooks,
+                          team_members=team_members,
+                          templates=templates,
+                          pir=pir)
 
-@app.route('/incidents/<int:incident_id>/update', methods=['POST'])
+@app.route('/incidents/<int:incident_id>/update', methods=['GET', 'POST'])
 @login_required
-def update_incident(incident_id):
+def incident_update(incident_id):
     incident = Incident.query.get_or_404(incident_id)
     
-    # Get form data
-    field = request.form.get('field')
-    value = request.form.get('value')
-    
-    if field and value:
-        old_value = getattr(incident, field, None)
+    if request.method == 'POST':
+        update_type = request.form.get('update_type')
+        content = request.form.get('content')
+        status_change = request.form.get('status_change')
         
-        # Update the field based on type
-        if field == 'assigned_to':
-            incident.assigned_to = int(value) if value != 'none' else None
-            activity_desc = f"Assigned incident to {User.query.get(int(value)).username if value != 'none' else 'no one'}"
-        elif field == 'assigned_team':
-            incident.assigned_team = int(value) if value != 'none' else None
-            activity_desc = f"Assigned incident to team {Team.query.get(int(value)).name if value != 'none' else 'no team'}"
-        elif field == 'status':
-            incident.status = value
-            activity_desc = f"Updated status from {old_value} to {value}"
-            
-            # If status changed to resolved, set resolution time
-            if value == 'resolved' and old_value != 'resolved':
-                incident.resolution_time = datetime.utcnow()
-        elif field == 'severity':
-            incident.severity = value
-            activity_desc = f"Updated severity from {old_value} to {value}"
-        elif field == 'resolution':
-            incident.resolution = value
-            activity_desc = f"Updated resolution notes"
-        else:
-            # Generic update
-            setattr(incident, field, value)
-            activity_desc = f"Updated {field} from {old_value} to {value}"
-        
-        # Update the incident
-        incident.updated_at = datetime.utcnow()
-        
-        # Create activity record
-        activity = Activity(
-            incident_id=incident.id,
+        # Create update
+        update = IncidentUpdate(
+            incident_id=incident_id,
             user_id=current_user.id,
-            description=activity_desc,
-            activity_type="analysis"  # Default to analysis for updates
+            update_type=update_type,
+            content=content,
+            status_change=status_change
         )
         
-        db.session.add(activity)
+        db.session.add(update)
+        
+        # Update incident status if needed
+        if status_change and status_change != incident.status:
+            incident.status = status_change
+            if status_change == 'Closed':
+                incident.resolved_at = datetime.utcnow()
+        
         db.session.commit()
         
-        return jsonify({'success': True, 'message': 'Incident updated'})
+        flash('Incident updated successfully!', 'success')
+        return redirect(url_for('incident_view', incident_id=incident_id))
     
-    return jsonify({'success': False, 'message': 'Invalid request'}), 400
+    return render_template('incidents/update.html', incident=incident)
 
-@app.route('/incidents/<int:incident_id>/add_comment', methods=['POST'])
+@app.route('/incidents/<int:incident_id>/team', methods=['POST'])
 @login_required
-def add_comment(incident_id):
+def incident_team_update(incident_id):
     incident = Incident.query.get_or_404(incident_id)
-    content = request.form.get('content')
     
-    if not content:
-        return jsonify({'success': False, 'message': 'Comment cannot be empty'}), 400
+    user_id = request.form.get('user_id')
+    role_id = request.form.get('role_id')
     
-    comment = Comment(
-        incident_id=incident_id,
-        user_id=current_user.id,
-        content=content
-    )
+    if user_id and role_id:
+        # Check if already a team member with this role
+        exists = db.session.query(IncidentRole).filter_by(
+            incident_id=incident_id,
+            user_id=user_id,
+            role_id=role_id
+        ).first()
+        
+        if not exists:
+            # Add user to team with specified role
+            sql = IncidentRole.insert().values(
+                incident_id=incident_id,
+                user_id=user_id,
+                role_id=role_id
+            )
+            db.session.execute(sql)
+            db.session.commit()
+            
+            # Add update
+            user = User.query.get(user_id)
+            role = Role.query.get(role_id)
+            update = IncidentUpdate(
+                incident_id=incident_id,
+                user_id=current_user.id,
+                update_type='Team Change',
+                content=f"Added {user.username} as {role.name}"
+            )
+            db.session.add(update)
+            db.session.commit()
+            
+            flash('Team member added successfully!', 'success')
+        else:
+            flash('User already has this role in the team', 'warning')
     
-    db.session.add(comment)
-    db.session.commit()
-    
-    return jsonify({
-        'success': True,
-        'comment': {
-            'id': comment.id,
-            'content': comment.content,
-            'author': comment.author.get_full_name(),
-            'created_at': format_datetime(comment.created_at)
-        }
-    })
+    return redirect(url_for('incident_view', incident_id=incident_id))
 
-@app.route('/incidents/<int:incident_id>/add_activity', methods=['POST'])
-@login_required
-def add_activity(incident_id):
-    incident = Incident.query.get_or_404(incident_id)
-    description = request.form.get('description')
-    activity_type = request.form.get('activity_type')
-    
-    if not description or not activity_type:
-        return jsonify({'success': False, 'message': 'All fields are required'}), 400
-    
-    activity = Activity(
-        incident_id=incident_id,
-        user_id=current_user.id,
-        description=description,
-        activity_type=activity_type
-    )
-    
-    db.session.add(activity)
-    db.session.commit()
-    
-    return jsonify({
-        'success': True,
-        'activity': {
-            'id': activity.id,
-            'description': activity.description,
-            'activity_type': activity.activity_type,
-            'user': activity.user.get_full_name(),
-            'created_at': format_datetime(activity.created_at)
-        }
-    })
-
-# ------------------------------------------------------
-# Playbook Routes
-# ------------------------------------------------------
-
+# Playbook routes
 @app.route('/playbooks')
 @login_required
-def list_playbooks():
-    incident_type = request.args.get('type')
-    
-    # Base query
-    query = Playbook.query
-    
-    # Apply filter if provided
-    if incident_type:
-        query = query.filter_by(incident_type=incident_type)
-    
-    # Get paginated results
-    page = request.args.get('page', 1, type=int)
-    playbooks = query.order_by(Playbook.title).paginate(page=page, per_page=10)
-    
-    return render_template(
-        'playbooks/list.html',
-        playbooks=playbooks,
-        incident_type_options=incident_type_options,
-        current_filters={
-            'type': incident_type
-        }
-    )
+def playbook_list():
+    playbooks = Playbook.query.all()
+    return render_template('playbooks/list.html', playbooks=playbooks)
+
+@app.route('/playbooks/<int:playbook_id>')
+@login_required
+def playbook_view(playbook_id):
+    playbook = Playbook.query.get_or_404(playbook_id)
+    steps = PlaybookStep.query.filter_by(playbook_id=playbook_id).order_by(PlaybookStep.order).all()
+    return render_template('playbooks/view.html', playbook=playbook, steps=steps)
 
 @app.route('/playbooks/create', methods=['GET', 'POST'])
 @login_required
-@requires_role(['admin', 'manager'])
-def create_playbook():
+@requires_role('Playbook Author')
+def playbook_create():
     if request.method == 'POST':
-        title = request.form.get('title')
-        incident_type = request.form.get('incident_type')
+        name = request.form.get('name')
         description = request.form.get('description')
-        steps_json = request.form.get('steps')
+        incident_type = request.form.get('incident_type')
+        severity_levels = request.form.get('severity_levels')
         
-        # Validate required fields
-        if not all([title, incident_type]):
-            flash('Please fill in all required fields', 'danger')
-            return render_template(
-                'playbooks/create.html',
-                incident_type_options=incident_type_options
-            )
-        
-        # Parse steps JSON
-        try:
-            steps = json.loads(steps_json)
-        except json.JSONDecodeError:
-            flash('Invalid steps format', 'danger')
-            return render_template(
-                'playbooks/create.html',
-                incident_type_options=incident_type_options
-            )
-        
-        # Create new playbook
+        # Create playbook
         playbook = Playbook(
-            title=title,
-            incident_type=incident_type,
+            name=name,
             description=description,
-            steps=steps,
+            incident_type=incident_type,
+            severity_levels=severity_levels,
             created_by=current_user.id
         )
         
         db.session.add(playbook)
         db.session.commit()
         
-        flash('Playbook created successfully', 'success')
-        return redirect(url_for('view_playbook', playbook_id=playbook.id))
+        flash('Playbook created successfully! Now add steps.', 'success')
+        return redirect(url_for('playbook_view', playbook_id=playbook.id))
     
-    return render_template(
-        'playbooks/create.html',
-        incident_type_options=incident_type_options
-    )
+    return render_template('playbooks/create.html')
 
-@app.route('/playbooks/<int:playbook_id>')
+@app.route('/playbooks/<int:playbook_id>/steps/add', methods=['POST'])
 @login_required
-def view_playbook(playbook_id):
+@requires_role('Playbook Author')
+def playbook_add_step(playbook_id):
     playbook = Playbook.query.get_or_404(playbook_id)
-    return render_template('playbooks/view.html', playbook=playbook)
-
-# ------------------------------------------------------
-# Team Routes
-# ------------------------------------------------------
-
-@app.route('/teams')
-@login_required
-def list_teams():
-    teams = Team.query.all()
-    return render_template('teams/list.html', teams=teams)
-
-@app.route('/teams/create', methods=['GET', 'POST'])
-@login_required
-@requires_role(['admin', 'manager'])
-def create_team():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        description = request.form.get('description')
-        
-        if not name:
-            flash('Team name is required', 'danger')
-            return render_template('teams/create.html')
-        
-        # Create new team
-        team = Team(
-            name=name,
-            description=description
-        )
-        
-        db.session.add(team)
-        db.session.commit()
-        
-        flash('Team created successfully', 'success')
-        return redirect(url_for('view_team', team_id=team.id))
     
-    return render_template('teams/create.html')
-
-@app.route('/teams/<int:team_id>')
-@login_required
-def view_team(team_id):
-    team = Team.query.get_or_404(team_id)
-    members = TeamMember.query.filter_by(team_id=team_id).all()
-    users = User.query.all()
+    # Count existing steps to determine order
+    next_order = PlaybookStep.query.filter_by(playbook_id=playbook_id).count() + 1
     
-    return render_template(
-        'teams/view.html',
-        team=team,
-        members=members,
-        users=users
-    )
-
-@app.route('/teams/<int:team_id>/add_member', methods=['POST'])
-@login_required
-@requires_role(['admin', 'manager'])
-def add_team_member(team_id):
-    team = Team.query.get_or_404(team_id)
-    user_id = request.form.get('user_id')
-    role = request.form.get('role')
+    title = request.form.get('title')
+    description = request.form.get('description')
+    actions = request.form.get('actions')
+    expected_outcome = request.form.get('expected_outcome')
+    role_responsible = request.form.get('role_responsible')
+    time_estimate = request.form.get('time_estimate')
     
-    if not user_id or not role:
-        flash('User and role are required', 'danger')
-        return redirect(url_for('view_team', team_id=team_id))
-    
-    # Check if user is already a member
-    existing_member = TeamMember.query.filter_by(
-        team_id=team_id, user_id=user_id
-    ).first()
-    
-    if existing_member:
-        flash('User is already a member of this team', 'warning')
-        return redirect(url_for('view_team', team_id=team_id))
-    
-    # Add member
-    member = TeamMember(
-        team_id=team_id,
-        user_id=user_id,
-        role=role
+    # Create step
+    step = PlaybookStep(
+        playbook_id=playbook_id,
+        order=next_order,
+        title=title,
+        description=description,
+        actions=actions,
+        expected_outcome=expected_outcome,
+        role_responsible=role_responsible,
+        time_estimate=time_estimate
     )
     
-    db.session.add(member)
+    db.session.add(step)
     db.session.commit()
     
-    flash('Member added to team', 'success')
-    return redirect(url_for('view_team', team_id=team_id))
+    flash('Step added successfully!', 'success')
+    return redirect(url_for('playbook_view', playbook_id=playbook_id))
 
-@app.route('/teams/<int:team_id>/remove_member/<int:member_id>', methods=['POST'])
-@login_required
-@requires_role(['admin', 'manager'])
-def remove_team_member(team_id, member_id):
-    member = TeamMember.query.get_or_404(member_id)
-    
-    # Ensure member belongs to the specified team
-    if member.team_id != team_id:
-        abort(404)
-    
-    db.session.delete(member)
-    db.session.commit()
-    
-    flash('Member removed from team', 'success')
-    return redirect(url_for('view_team', team_id=team_id))
-
-# ------------------------------------------------------
-# Communication Template Routes
-# ------------------------------------------------------
-
+# Communication Template routes
 @app.route('/communications/templates')
 @login_required
-def list_communication_templates():
-    template_type = request.args.get('type')
-    incident_type = request.args.get('incident_type')
-    
-    # Base query
-    query = CommunicationTemplate.query
-    
-    # Apply filters if provided
-    if template_type:
-        query = query.filter_by(template_type=template_type)
-    if incident_type:
-        query = query.filter_by(incident_type=incident_type)
-    
-    templates = query.order_by(CommunicationTemplate.name).all()
-    
-    template_type_options = ['internal', 'external', 'executive', 'customer']
-    
-    return render_template(
-        'communications/templates.html',
-        templates=templates,
-        template_type_options=template_type_options,
-        incident_type_options=incident_type_options,
-        current_filters={
-            'type': template_type,
-            'incident_type': incident_type
-        }
-    )
+def communication_templates():
+    templates = CommunicationTemplate.query.all()
+    return render_template('communications/templates.html', templates=templates)
 
-@app.route('/communications/templates/create', methods=['GET', 'POST'])
+@app.route('/communications/templates/create', methods=['POST'])
 @login_required
-@requires_role(['admin', 'manager'])
-def create_communication_template():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        subject = request.form.get('subject')
-        body = request.form.get('body')
-        template_type = request.form.get('template_type')
-        incident_type = request.form.get('incident_type')
-        
-        # Validate required fields
-        if not all([name, subject, body, template_type]):
-            flash('Please fill in all required fields', 'danger')
-            return render_template(
-                'communications/create.html',
-                template_type_options=['internal', 'external', 'executive', 'customer'],
-                incident_type_options=incident_type_options
-            )
-        
-        # Create template
-        template = CommunicationTemplate(
-            name=name,
-            subject=subject,
-            body=body,
-            template_type=template_type,
-            incident_type=incident_type if incident_type else None,
-            created_by=current_user.id
-        )
-        
-        db.session.add(template)
-        db.session.commit()
-        
-        flash('Communication template created successfully', 'success')
-        return redirect(url_for('list_communication_templates'))
+@requires_role('Communications Manager')
+def communication_template_create():
+    name = request.form.get('name')
+    description = request.form.get('description')
+    template_type = request.form.get('template_type')
+    audience = request.form.get('audience')
+    subject = request.form.get('subject')
+    content = request.form.get('content')
     
-    return render_template(
-        'communications/create.html',
-        template_type_options=['internal', 'external', 'executive', 'customer'],
-        incident_type_options=incident_type_options
+    template = CommunicationTemplate(
+        name=name,
+        description=description,
+        template_type=template_type,
+        audience=audience,
+        subject=subject,
+        content=content,
+        created_by=current_user.id
     )
+    
+    db.session.add(template)
+    db.session.commit()
+    
+    flash('Communication template created successfully!', 'success')
+    return redirect(url_for('communication_templates'))
 
-# ------------------------------------------------------
-# PIR Routes
-# ------------------------------------------------------
-
+# PIR routes
 @app.route('/pir')
 @login_required
-def list_pirs():
-    pirs = PIR.query.order_by(PIR.conducted_at.desc()).all()
+def pir_list():
+    pirs = PIR.query.join(Incident).order_by(PIR.created_at.desc()).all()
     return render_template('pir/list.html', pirs=pirs)
 
 @app.route('/pir/create/<int:incident_id>', methods=['GET', 'POST'])
 @login_required
-def create_pir(incident_id):
+def pir_create(incident_id):
     incident = Incident.query.get_or_404(incident_id)
     
-    # Check if PIR already exists for this incident
-    existing_pir = PIR.query.filter_by(incident_id=incident_id).first()
-    if existing_pir:
+    # Check if PIR already exists
+    if PIR.query.filter_by(incident_id=incident_id).first():
         flash('A PIR already exists for this incident', 'warning')
-        return redirect(url_for('view_pir', pir_id=existing_pir.id))
+        return redirect(url_for('incident_view', incident_id=incident_id))
     
     if request.method == 'POST':
         summary = request.form.get('summary')
-        what_happened = request.form.get('what_happened')
-        what_went_well = request.form.get('what_went_well')
-        what_went_poorly = request.form.get('what_went_poorly')
+        timeline = request.form.get('timeline')
+        impact_assessment = request.form.get('impact_assessment')
         root_cause = request.form.get('root_cause')
-        action_items_json = request.form.get('action_items')
-        lessons_learned = request.form.get('lessons_learned')
-        
-        # Validate required fields
-        if not all([summary, what_happened, what_went_well, what_went_poorly, root_cause, lessons_learned]):
-            flash('Please fill in all required fields', 'danger')
-            return render_template('pir/create.html', incident=incident)
-        
-        # Parse action items JSON
-        try:
-            action_items = json.loads(action_items_json)
-        except json.JSONDecodeError:
-            flash('Invalid action items format', 'danger')
-            return render_template('pir/create.html', incident=incident)
         
         # Create PIR
         pir = PIR(
             incident_id=incident_id,
-            conducted_by=current_user.id,
             summary=summary,
-            what_happened=what_happened,
-            what_went_well=what_went_well,
-            what_went_poorly=what_went_poorly,
+            timeline=timeline,
+            impact_assessment=impact_assessment,
             root_cause=root_cause,
-            action_items=action_items,
-            lessons_learned=lessons_learned
+            created_by=current_user.id
         )
         
         db.session.add(pir)
         db.session.commit()
         
-        flash('Post-Incident Review created successfully', 'success')
-        return redirect(url_for('view_pir', pir_id=pir.id))
+        flash('Post-Incident Review created successfully!', 'success')
+        return redirect(url_for('pir_view', pir_id=pir.id))
     
     return render_template('pir/create.html', incident=incident)
 
 @app.route('/pir/<int:pir_id>')
 @login_required
-def view_pir(pir_id):
+def pir_view(pir_id):
     pir = PIR.query.get_or_404(pir_id)
-    return render_template('pir/view.html', pir=pir)
+    incident = Incident.query.get(pir.incident_id)
+    findings = PIRFinding.query.filter_by(pir_id=pir_id).all()
+    
+    return render_template('pir/view.html', pir=pir, incident=incident, findings=findings)
 
-# ------------------------------------------------------
-# Reporting Routes
-# ------------------------------------------------------
+@app.route('/pir/<int:pir_id>/findings/add', methods=['POST'])
+@login_required
+def pir_add_finding(pir_id):
+    pir = PIR.query.get_or_404(pir_id)
+    
+    finding_type = request.form.get('finding_type')
+    description = request.form.get('description')
+    recommendation = request.form.get('recommendation')
+    assigned_to = request.form.get('assigned_to')
+    due_date_str = request.form.get('due_date')
+    
+    due_date = None
+    if due_date_str:
+        due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+    
+    finding = PIRFinding(
+        pir_id=pir_id,
+        finding_type=finding_type,
+        description=description,
+        recommendation=recommendation,
+        assigned_to=assigned_to if assigned_to else None,
+        due_date=due_date,
+        status='Open'
+    )
+    
+    db.session.add(finding)
+    db.session.commit()
+    
+    flash('Finding added successfully!', 'success')
+    return redirect(url_for('pir_view', pir_id=pir_id))
 
+# Admin routes
+@app.route('/admin/users')
+@login_required
+@require_admin
+def admin_users():
+    users = User.query.all()
+    roles = Role.query.all()
+    return render_template('admin/users.html', users=users, roles=roles)
+
+@app.route('/admin/users/update/<int:user_id>', methods=['POST'])
+@login_required
+@require_admin
+def admin_update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    user.is_active = 'is_active' in request.form
+    user.is_admin = 'is_admin' in request.form
+    
+    # Update roles
+    user.roles = []
+    for role in Role.query.all():
+        if f'role_{role.id}' in request.form:
+            user.roles.append(role)
+    
+    db.session.commit()
+    
+    flash('User updated successfully!', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/roles')
+@login_required
+@require_admin
+def admin_roles():
+    roles = Role.query.all()
+    return render_template('admin/roles.html', roles=roles)
+
+@app.route('/admin/roles/create', methods=['POST'])
+@login_required
+@require_admin
+def admin_create_role():
+    name = request.form.get('name')
+    description = request.form.get('description')
+    
+    if Role.query.filter_by(name=name).first():
+        flash('Role already exists', 'danger')
+        return redirect(url_for('admin_roles'))
+    
+    role = Role(name=name, description=description)
+    db.session.add(role)
+    db.session.commit()
+    
+    flash('Role created successfully!', 'success')
+    return redirect(url_for('admin_roles'))
+
+# Reporting routes
 @app.route('/reports/metrics')
 @login_required
-@requires_role(['admin', 'manager'])
-def metrics_report():
-    metrics = get_incident_metrics()
-    
-    # Get top incident types
-    top_types = db.session.query(
-        Incident.incident_type, db.func.count(Incident.id).label('count')
-    ).group_by(Incident.incident_type).order_by(db.func.count(Incident.id).desc()).limit(5).all()
-    
-    # Get average resolution times by severity
-    avg_times = db.session.query(
-        Incident.severity,
-        db.func.avg(db.func.julianday(Incident.resolution_time) - db.func.julianday(Incident.detection_time)) * 24
-    ).filter(
-        Incident.detection_time.isnot(None),
-        Incident.resolution_time.isnot(None)
-    ).group_by(Incident.severity).all()
-    
-    # Time-based metrics
-    time_periods = ['7days', '30days', '90days', 'all']
-    time_metrics = {}
-    
-    for period in time_periods:
-        time_metrics[period] = get_incident_metrics(period)
-    
-    return render_template(
-        'reports/metrics.html',
-        metrics=metrics,
-        top_types=top_types,
-        avg_times=avg_times,
-        time_metrics=time_metrics
-    )
+def reports_metrics():
+    metrics = generate_metrics()
+    return render_template('reports/metrics.html', metrics=metrics)
 
-# ------------------------------------------------------
-# Error Handlers
-# ------------------------------------------------------
+# API routes for AJAX calls
+@app.route('/api/incidents/count')
+@login_required
+def api_incident_count():
+    stats = get_incident_stats()
+    return jsonify(stats)
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
+@app.route('/api/playbooks/steps/<int:playbook_id>')
+@login_required
+def api_playbook_steps(playbook_id):
+    steps = PlaybookStep.query.filter_by(playbook_id=playbook_id).order_by(PlaybookStep.order).all()
+    return jsonify([{
+        'id': step.id,
+        'order': step.order,
+        'title': step.title,
+        'description': step.description,
+        'actions': step.actions,
+        'expected_outcome': step.expected_outcome,
+        'role_responsible': step.role_responsible,
+        'time_estimate': step.time_estimate
+    } for step in steps])

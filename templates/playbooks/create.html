@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Create Playbook - Security Incident Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="fas fa-book me-2"></i> Create New Playbook</h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('playbook_create') }}">
+            <div class="mb-3">
+              <label for="name" class="form-label">Playbook Name</label>
+              <input type="text" class="form-control" id="name" name="name" required>
+              <div class="form-text">A clear, descriptive name for the playbook (e.g., "Phishing Email Response")</div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+              <div class="form-text">Overview of the playbook's purpose and when it should be used</div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="incident_type" class="form-label">Incident Type</label>
+                <input type="text" class="form-control" id="incident_type" name="incident_type" required>
+                <div class="form-text">The type of incident this playbook addresses (e.g., "Malware", "Phishing")</div>
+              </div>
+              <div class="col-md-6">
+                <label for="severity_levels" class="form-label">Applicable Severity Levels</label>
+                <input type="text" class="form-control" id="severity_levels" name="severity_levels" required>
+                <div class="form-text">Comma-separated list of severity levels (e.g., "Critical,High,Medium")</div>
+              </div>
+            </div>
+            
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i> After creating the playbook, you'll be able to add individual response steps.
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{{ url_for('playbook_list') }}" class="btn btn-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Create Playbook</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- NIST Framework Card -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="mb-0">NIST SP 800-61 Incident Response Lifecycle</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <div class="card h-100">
+                <div class="card-header text-center">
+                  <h6 class="mb-0">1. Preparation</h6>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">Establishing an incident response capability and preventing incidents by securing systems</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card h-100">
+                <div class="card-header text-center">
+                  <h6 class="mb-0">2. Detection & Analysis</h6>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">Detecting and analyzing incidents through various precursors and indicators</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card h-100">
+                <div class="card-header text-center">
+                  <h6 class="mb-0">3. Containment, Eradication & Recovery</h6>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">Containing incidents, eliminating components, and restoring systems</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <div class="card h-100">
+                <div class="card-header text-center">
+                  <h6 class="mb-0">4. Post-Incident Activity</h6>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">Learning and improving through incident documentation and review</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <p class="mb-0 text-muted">Consider organizing your playbook steps according to this framework for comprehensive incident response.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

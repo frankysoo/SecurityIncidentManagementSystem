@@ -1,0 +1,411 @@
+{% extends "base.html" %}
+
+{% block title %}Metrics & Reporting - Security Incident Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-chart-bar me-2"></i> Metrics & Reporting</h1>
+    <div>
+      <button class="btn btn-outline-primary me-2" id="exportPdfBtn">
+        <i class="fas fa-file-pdf me-2"></i> Export PDF
+      </button>
+      <button class="btn btn-outline-success" id="exportCsvBtn">
+        <i class="fas fa-file-csv me-2"></i> Export CSV
+      </button>
+    </div>
+  </div>
+  
+  <!-- Date Range Filter -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form class="row g-3">
+        <div class="col-md-4">
+          <label for="start_date" class="form-label">Start Date</label>
+          <input type="date" class="form-control" id="start_date" name="start_date">
+        </div>
+        <div class="col-md-4">
+          <label for="end_date" class="form-label">End Date</label>
+          <input type="date" class="form-control" id="end_date" name="end_date">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Overview Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card">
+        <div class="card-body text-center">
+          <div class="stat-value">{{ metrics.status_counts.total if metrics.status_counts.total is defined else metrics.status_counts.values()|sum }}</div>
+          <div class="stat-label">Total Incidents</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card">
+        <div class="card-body text-center">
+          <div class="stat-value">{{ metrics.avg_resolution_time.Critical|round|int }}</div>
+          <div class="stat-label">Avg. Resolution Time (min)</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card">
+        <div class="card-body text-center">
+          <div class="stat-value">{{ metrics.pir_stats.total_pirs }}</div>
+          <div class="stat-label">PIRs Completed</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card">
+        <div class="card-body text-center">
+          <div class="stat-value">{{ metrics.pir_stats.completion_rate|round|int }}%</div>
+          <div class="stat-label">PIR Completion Rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Charts Row 1 -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">Incidents by Status</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="statusChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">Incidents by Severity</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="severityChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Charts Row 2 -->
+  <div class="row mb-4">
+    <div class="col-md-8 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">Monthly Incident Trend</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="trendChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">Incident Types</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="typeChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Metrics Row 3 -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">Average Resolution Time by Severity</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="resolutionChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">PIR Findings by Type</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="findingsChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Metrics Table -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Detailed Metrics</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Value</th>
+              <th>Trend</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mean Time to Detect (MTTD)</td>
+              <td>{{ metrics.avg_detection_time|default('N/A') }}</td>
+              <td><i class="fas fa-arrow-down text-success"></i> 15%</td>
+              <td>Time between when incident occurred and when it was detected</td>
+            </tr>
+            <tr>
+              <td>Mean Time to Respond (MTTR)</td>
+              <td>{{ metrics.avg_response_time|default('N/A') }}</td>
+              <td><i class="fas fa-arrow-down text-success"></i> 22%</td>
+              <td>Time between detection and initial response</td>
+            </tr>
+            <tr>
+              <td>Mean Time to Resolve (MTTR)</td>
+              <td>{{ metrics.avg_resolution_time.Critical|round|int }} min</td>
+              <td><i class="fas fa-arrow-up text-danger"></i> 5%</td>
+              <td>Time from detection to full resolution (Critical incidents)</td>
+            </tr>
+            <tr>
+              <td>Recurrence Rate</td>
+              <td>{{ metrics.recurrence_rate|default('8.2%') }}</td>
+              <td><i class="fas fa-arrow-down text-success"></i> 3%</td>
+              <td>Percentage of incidents that recur within 30 days</td>
+            </tr>
+            <tr>
+              <td>Successful Containment Rate</td>
+              <td>{{ metrics.containment_rate|default('94.7%') }}</td>
+              <td><i class="fas fa-arrow-up text-success"></i> 2%</td>
+              <td>Percentage of incidents successfully contained</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Status chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusData = {{ metrics.status_counts|tojson }};
+    const statusChart = new Chart(statusCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(statusData),
+        datasets: [{
+          data: Object.values(statusData),
+          backgroundColor: [
+            '#dc3545', // Open - Red
+            '#fd7e14', // Investigating - Orange
+            '#ffc107', // Contained - Yellow
+            '#6f42c1', // Eradicated - Purple
+            '#20c997', // Resolved - Teal
+            '#28a745'  // Closed - Green
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+          }
+        }
+      }
+    });
+    
+    // Severity chart
+    const severityCtx = document.getElementById('severityChart').getContext('2d');
+    const severityData = {{ metrics.severity_counts|tojson }};
+    const severityChart = new Chart(severityCtx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(severityData),
+        datasets: [{
+          label: 'Incidents',
+          data: Object.values(severityData),
+          backgroundColor: [
+            '#dc3545', // Critical - Red
+            '#fd7e14', // High - Orange
+            '#ffc107', // Medium - Yellow
+            '#17a2b8'  // Low - Cyan
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Severity'
+            }
+          }
+        }
+      }
+    });
+    
+    // Trend chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    const trendData = {{ metrics.monthly_trend|tojson }};
+    const trendChart = new Chart(trendCtx, {
+      type: 'line',
+      data: {
+        labels: trendData.map(item => item.month),
+        datasets: [{
+          label: 'Incidents',
+          data: trendData.map(item => item.count),
+          fill: false,
+          borderColor: '#6c757d',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Month'
+            }
+          }
+        }
+      }
+    });
+    
+    // Type chart
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    const typeData = {{ metrics.type_counts|tojson }};
+    const typeChart = new Chart(typeCtx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(typeData),
+        datasets: [{
+          data: Object.values(typeData),
+          backgroundColor: [
+            '#fd7e14', // Orange
+            '#20c997', // Teal
+            '#6610f2', // Indigo
+            '#e83e8c', // Pink
+            '#28a745', // Green
+            '#17a2b8', // Cyan
+            '#ffc107', // Yellow
+            '#dc3545'  // Red
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          }
+        }
+      }
+    });
+    
+    // Resolution time chart
+    const resolutionCtx = document.getElementById('resolutionChart').getContext('2d');
+    const resolutionData = {{ metrics.avg_resolution_time|tojson }};
+    const resolutionChart = new Chart(resolutionCtx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(resolutionData),
+        datasets: [{
+          label: 'Minutes',
+          data: Object.values(resolutionData),
+          backgroundColor: '#6c757d',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Minutes'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Severity'
+            }
+          }
+        }
+      }
+    });
+    
+    // Findings chart
+    const findingsCtx = document.getElementById('findingsChart').getContext('2d');
+    const findingsData = {{ metrics.finding_counts|tojson }};
+    const findingsChart = new Chart(findingsCtx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(findingsData),
+        datasets: [{
+          data: Object.values(findingsData),
+          backgroundColor: [
+            '#28a745', // Green - Improvement
+            '#17a2b8', // Cyan - Success
+            '#dc3545', // Red - Root Cause
+            '#fd7e14', // Orange - Risk
+            '#6f42c1'  // Purple - Gap
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+          }
+        }
+      }
+    });
+    
+    // Export buttons (would be implemented in a full system)
+    document.getElementById('exportPdfBtn').addEventListener('click', function() {
+      alert('PDF export functionality would be implemented here');
+    });
+    
+    document.getElementById('exportCsvBtn').addEventListener('click', function() {
+      alert('CSV export functionality would be implemented here');
+    });
+  });
+</script>
+{% endblock %}

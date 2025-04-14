@@ -1,73 +1,156 @@
+// Dashboard functionality
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize charts if we're on the dashboard page
-    if (document.getElementById('severityChart')) {
-        initDashboardCharts();
-    }
-    
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-    
-    // Date range picker for reports
-    const startDateInput = document.getElementById('start_date');
-    const endDateInput = document.getElementById('end_date');
-    
-    if (startDateInput && endDateInput) {
-        startDateInput.addEventListener('change', function() {
-            // Ensure end date is not before start date
-            if (endDateInput.value && new Date(endDateInput.value) < new Date(startDateInput.value)) {
-                endDateInput.value = startDateInput.value;
-            }
-            endDateInput.min = startDateInput.value;
-        });
-        
-        // Set initial min value for end date
-        if (startDateInput.value) {
-            endDateInput.min = startDateInput.value;
-        }
-    }
-    
-    // Filter form submission on incidents page
-    const filterForm = document.getElementById('filter-form');
-    if (filterForm) {
-        filterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Build query string from form values
-            const formData = new FormData(filterForm);
-            const params = new URLSearchParams();
-            
-            for (const [key, value] of formData.entries()) {
-                if (value) {
-                    params.append(key, value);
-                }
-            }
-            
-            // Navigate to incidents page with filters
-            window.location.href = '/incidents?' + params.toString();
-        });
-        
-        // Reset filters button
-        const resetButton = document.getElementById('reset-filters');
-        if (resetButton) {
-            resetButton.addEventListener('click', function() {
-                window.location.href = '/incidents';
-            });
-        }
-    }
-    
-    // Toggle comment visibility based on private checkbox
-    const privateCheckbox = document.getElementById('is_private');
-    if (privateCheckbox) {
-        privateCheckbox.addEventListener('change', function() {
-            const label = document.querySelector('label[for="is_private"]');
-            if (this.checked) {
-                label.innerHTML = 'Private <i class="fas fa-lock"></i>';
-            } else {
-                label.innerHTML = 'Public <i class="fas fa-globe"></i>';
-            }
-        });
-    }
+  // Initialize incident status chart
+  const statusChartCtx = document.getElementById('incidentStatusChart');
+  if (statusChartCtx) {
+    initStatusChart(statusChartCtx);
+  }
+  
+  // Initialize severity chart
+  const severityChartCtx = document.getElementById('incidentSeverityChart');
+  if (severityChartCtx) {
+    initSeverityChart(severityChartCtx);
+  }
+  
+  // Initialize monthly trend chart
+  const trendChartCtx = document.getElementById('incidentTrendChart');
+  if (trendChartCtx) {
+    initTrendChart(trendChartCtx);
+  }
+  
+  // Refresh dashboard data every 5 minutes
+  setInterval(refreshDashboardData, 300000);
 });
+
+function initStatusChart(ctx) {
+  fetch('/api/incidents/count')
+    .then(response => response.json())
+    .then(data => {
+      const statusChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Open', 'Closed'],
+          datasets: [{
+            data: [data.open, data.total - data.open],
+            backgroundColor: ['#dc3545', '#28a745'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+            },
+            title: {
+              display: true,
+              text: 'Incident Status'
+            }
+          }
+        }
+      });
+    });
+}
+
+function initSeverityChart(ctx) {
+  // This will be populated from the metrics endpoint in a real implementation
+  // For now, using placeholder data
+  const severityChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Critical', 'High', 'Medium', 'Low'],
+      datasets: [{
+        label: 'Incidents by Severity',
+        data: [4, 8, 15, 12],
+        backgroundColor: [
+          '#dc3545',
+          '#fd7e14',
+          '#ffc107',
+          '#17a2b8'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Incidents'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Severity Level'
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Incidents by Severity'
+        }
+      }
+    }
+  });
+}
+
+function initTrendChart(ctx) {
+  // This will be populated from the metrics endpoint in a real implementation
+  // For now, using placeholder data
+  const months = ['January', 'February', 'March', 'April', 'May', 'June'];
+  const trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Incidents',
+        data: [5, 8, 12, 7, 10, 9],
+        fill: false,
+        borderColor: '#6c757d',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Incidents'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Month'
+          }
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Incident Trend (Last 6 Months)'
+        }
+      }
+    }
+  });
+}
+
+function refreshDashboardData() {
+  fetch('/api/incidents/count')
+    .then(response => response.json())
+    .then(data => {
+      // Update summary stats
+      document.getElementById('totalIncidents').textContent = data.total;
+      document.getElementById('openIncidents').textContent = data.open;
+      document.getElementById('criticalIncidents').textContent = data.critical;
+      document.getElementById('unassignedIncidents').textContent = data.unassigned;
+      
+      // You would also update the charts here in a full implementation
+    });
+}

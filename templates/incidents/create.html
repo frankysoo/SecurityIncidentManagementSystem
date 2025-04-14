@@ -1,90 +1,84 @@
-{% extends 'layout.html' %}
+{% extends "base.html" %}
 
 {% block title %}Create Incident - Security Incident Management System{% endblock %}
 
+{% block head %}
+<script src="{{ url_for('static', filename='js/incident_form.js') }}"></script>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
+<div class="container">
+  <div class="row justify-content-center">
     <div class="col-md-10">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Security Incident</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('create_incident') }}">
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="title" class="form-label">Incident Title <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="title" name="title" required placeholder="Brief, descriptive title of the incident">
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="severity" class="form-label">Severity <span class="text-danger">*</span></label>
-                            <select class="form-select" id="severity" name="severity" required>
-                                <option value="" selected disabled>Select severity level</option>
-                                {% for severity in severity_options %}
-                                <option value="{{ severity }}">
-                                    {{ severity|capitalize }} - 
-                                    {% if severity == 'critical' %}
-                                        Critical impact on business operations
-                                    {% elif severity == 'high' %}
-                                        Significant impact on operations
-                                    {% elif severity == 'medium' %}
-                                        Limited impact on operations
-                                    {% elif severity == 'low' %}
-                                        Minimal impact, routine event
-                                    {% endif %}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="incident_type" class="form-label">Incident Type <span class="text-danger">*</span></label>
-                            <select class="form-select" id="incident_type" name="incident_type" required>
-                                <option value="" selected disabled>Select incident type</option>
-                                {% for type in incident_type_options %}
-                                <option value="{{ type }}">{{ type|replace('_', ' ')|capitalize }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="5" placeholder="Detailed description of the incident, including what happened, how it was detected, and initial observations"></textarea>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="affected_systems" class="form-label">Affected Systems</label>
-                            <input type="text" class="form-control" id="affected_systems" name="affected_systems" placeholder="Comma-separated list of affected systems">
-                            <div class="form-text">Example: web-server-01, database-02, mail-server</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="tags" class="form-label">Tags</label>
-                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Comma-separated list of tags">
-                            <div class="form-text">Example: network, breach, external</div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="detection_time" class="form-label">Detection Time</label>
-                        <input type="datetime-local" class="form-control" id="detection_time" name="detection_time">
-                        <div class="form-text">When was the incident first detected? Leave blank if it's right now.</div>
-                    </div>
-                    
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{{ url_for('list_incidents') }}" class="btn btn-secondary me-md-2">
-                            <i class="fas fa-times me-2"></i>Cancel
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Create Incident
-                        </button>
-                    </div>
-                </form>
-            </div>
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i> Create New Incident</h4>
         </div>
+        <div class="card-body">
+          <form id="incident_form" method="POST" action="{{ url_for('incident_create') }}">
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="title" class="form-label">Incident Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+                <div class="form-text">Brief, descriptive title of the incident</div>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="severity" class="form-label">Severity</label>
+                <select class="form-select" id="severity" name="severity" required>
+                  <option value="" selected disabled>Select Severity</option>
+                  <option value="Critical">Critical</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="type" class="form-label">Incident Type</label>
+                <select class="form-select" id="type" name="type" required>
+                  <option value="" selected disabled>Select Type</option>
+                  {% for type in incident_types %}
+                    <option value="{{ type }}">{{ type }}</option>
+                  {% endfor %}
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="detected_at" class="form-label">Date & Time Detected</label>
+                <input type="datetime-local" class="form-control" id="detected_at" name="detected_at" required>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                <div class="form-text">Detailed description of the incident including observable indicators, affected systems, and initial assessment</div>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="assigned_to" class="form-label">Assign To</label>
+                <select class="form-select" id="assigned_to" name="assigned_to">
+                  <option value="">Unassigned</option>
+                  {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.username }} ({{ user.first_name }} {{ user.last_name }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{{ url_for('incident_list') }}" class="btn btn-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Create Incident</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Create Post-Incident Review - Security Incident Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="fas fa-search me-2"></i> Create Post-Incident Review</h4>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info mb-4">
+            <i class="fas fa-info-circle me-2"></i> Creating a Post-Incident Review for Incident #{{ incident.id }}: {{ incident.title }}
+          </div>
+          
+          <form method="POST" action="{{ url_for('pir_create', incident_id=incident.id) }}">
+            <div class="mb-4">
+              <h5>Incident Details</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Type:</strong> {{ incident.type }}</p>
+                  <p><strong>Severity:</strong> {{ incident.severity }}</p>
+                  <p><strong>Detected At:</strong> {{ incident.detected_at|format_date }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Created By:</strong> {{ incident.creator.username }}</p>
+                  <p><strong>Created At:</strong> {{ incident.created_at|format_date }}</p>
+                  <p><strong>Resolved At:</strong> {{ incident.resolved_at|format_date }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="summary" class="form-label">Executive Summary</label>
+              <textarea class="form-control" id="summary" name="summary" rows="4" required></textarea>
+              <div class="form-text">
+                High-level summary of the incident, including:
+                <ul>
+                  <li>Brief description of what happened</li>
+                  <li>Impact on systems/services/users</li>
+                  <li>Duration of the incident</li>
+                  <li>Key outcomes</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="timeline" class="form-label">Incident Timeline</label>
+              <textarea class="form-control" id="timeline" name="timeline" rows="6" required></textarea>
+              <div class="form-text">
+                Chronological sequence of key events with timestamps:
+                <ul>
+                  <li>When the incident was detected and by whom</li>
+                  <li>When key response actions were taken</li>
+                  <li>When systems were restored</li>
+                  <li>When the incident was declared resolved</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="impact_assessment" class="form-label">Impact Assessment</label>
+              <textarea class="form-control" id="impact_assessment" name="impact_assessment" rows="4" required></textarea>
+              <div class="form-text">
+                Detailed assessment of the incident's impact:
+                <ul>
+                  <li>Services/systems affected and for how long</li>
+                  <li>Number of users affected</li>
+                  <li>Data compromised (if applicable)</li>
+                  <li>Financial impact (if known)</li>
+                  <li>Reputation impact</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="root_cause" class="form-label">Root Cause Analysis</label>
+              <textarea class="form-control" id="root_cause" name="root_cause" rows="4" required></textarea>
+              <div class="form-text">
+                Detailed explanation of what caused the incident:
+                <ul>
+                  <li>Primary cause(s)</li>
+                  <li>Contributing factors</li>
+                  <li>Why detection or prevention mechanisms failed</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="alert alert-info mt-4">
+              <i class="fas fa-lightbulb me-2"></i> After creating the initial PIR, you'll be able to add specific findings and recommendations.
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{{ url_for('incident_view', incident_id=incident.id) }}" class="btn btn-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Create PIR</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- PIR Best Practices -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <h5 class="mb-0">Post-Incident Review Best Practices</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="d-flex mb-3">
+                <div class="me-3">
+                  <i class="fas fa-check-circle text-success fa-2x"></i>
+                </div>
+                <div>
+                  <h6>Focus on Improvement, Not Blame</h6>
+                  <p class="mb-0 text-muted">The goal is identifying systemic issues, not assigning blame to individuals.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex mb-3">
+                <div class="me-3">
+                  <i class="fas fa-check-circle text-success fa-2x"></i>
+                </div>
+                <div>
+                  <h6>Be Specific and Actionable</h6>
+                  <p class="mb-0 text-muted">Ensure recommendations are clear and implementable.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex mb-3">
+                <div class="me-3">
+                  <i class="fas fa-check-circle text-success fa-2x"></i>
+                </div>
+                <div>
+                  <h6>Include Both Successes and Failures</h6>
+                  <p class="mb-0 text-muted">Document what went well in addition to improvement areas.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex mb-3">
+                <div class="me-3">
+                  <i class="fas fa-check-circle text-success fa-2x"></i>
+                </div>
+                <div>
+                  <h6>Follow Through on Findings</h6>
+                  <p class="mb-0 text-muted">Assign owners and deadlines to ensure implementation.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

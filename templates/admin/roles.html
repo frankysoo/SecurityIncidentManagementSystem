@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Role Management - Security Incident Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-tag me-2"></i> Role Management</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRoleModal">
+      <i class="fas fa-plus me-2"></i> Add Role
+    </button>
+  </div>
+  
+  <!-- Roles Table -->
+  <div class="card">
+    <div class="card-body">
+      {% if roles %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Role Name</th>
+                <th>Description</th>
+                <th>Users</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for role in roles %}
+                <tr>
+                  <td>{{ role.id }}</td>
+                  <td>{{ role.name }}</td>
+                  <td>{{ role.description }}</td>
+                  <td>{{ role.users|length }}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editRoleModal{{ role.id }}">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </td>
+                </tr>
+                
+                <!-- Edit Role Modal (would be implemented in a full system) -->
+                <div class="modal fade" id="editRoleModal{{ role.id }}" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Edit Role: {{ role.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form>
+                          <div class="mb-3">
+                            <label for="edit_name{{ role.id }}" class="form-label">Role Name</label>
+                            <input type="text" class="form-control" id="edit_name{{ role.id }}" value="{{ role.name }}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="edit_description{{ role.id }}" class="form-label">Description</label>
+                            <textarea class="form-control" id="edit_description{{ role.id }}" rows="3">{{ role.description }}</textarea>
+                          </div>
+                        </form>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary">Save Changes</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i> No roles defined yet.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Add Role Modal -->
+  <div class="modal fade" id="addRoleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New Role</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{{ url_for('admin_create_role') }}" method="post">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="name" class="form-label">Role Name</label>
+              <input type="text" class="form-control" id="name" name="name" required>
+              <div class="form-text">Name should be descriptive of the user's responsibilities (e.g., "Incident Commander")</div>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+              <div class="form-text">Describe the role's responsibilities and authority in the incident response process</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Role</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Roles Info Card -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">Default Incident Response Team Roles</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5>Incident Commander</h5>
+              <p>Overall leadership role responsible for coordinating the incident response effort, making key decisions, and ensuring proper procedures are followed.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5>Technical Lead</h5>
+              <p>Directs the technical investigation and remediation activities. Analyzes technical details and recommends containment and eradication strategies.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5>Communications Manager</h5>
+              <p>Responsible for all internal and external communications during an incident. Ensures stakeholders are informed appropriately.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5>Scribe</h5>
+              <p>Documents all incident activities, decisions, and findings in real-time. Maintains an accurate timeline of the response effort.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

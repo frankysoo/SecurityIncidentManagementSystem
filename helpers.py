@@ -1,174 +1,161 @@
+from flask import flash, redirect, url_for
+from flask_login import current_user
+from functools import wraps
+from models import Incident, IncidentUpdate, PIR, PIRFinding, Role
 from datetime import datetime, timedelta
 from app import db
-from models import Incident, Activity, Metric
+import calendar
+import logging
 
-def log_activity(incident_id, user_id, action, details=None):
-    """Log an activity for an incident"""
-    activity = Activity(
-        incident_id=incident_id,
-        user_id=user_id,
-        action=action,
-        details=details
-    )
-    db.session.add(activity)
-    db.session.commit()
-    return activity
-
-def calculate_metrics(start_date=None, end_date=None):
-    """Calculate key metrics for the dashboard or reports"""
-    if not start_date:
-        start_date = (datetime.utcnow() - timedelta(days=30)).date()
-    if not end_date:
-        end_date = datetime.utcnow().date()
-        
-    # Convert to datetime objects if needed
-    if isinstance(start_date, str):
-        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-    if isinstance(end_date, str):
-        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+def get_incident_stats():
+    """Get statistics about incidents for dashboard"""
+    total = Incident.query.count()
+    open_incidents = Incident.query.filter(Incident.status != 'Closed').count()
+    critical = Incident.query.filter_by(severity='Critical').count()
+    unassigned = Incident.query.filter_by(assigned_to=None).count()
     
-    # Ensure we include the full end date
-    end_datetime = datetime.combine(end_date, datetime.max.time())
-    start_datetime = datetime.combine(start_date, datetime.min.time())
+    # Incidents in the last 30 days
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    recent = Incident.query.filter(Incident.created_at >= thirty_days_ago).count()
     
-    # Total number of incidents
-    total_incidents = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime
-    ).count()
-    
-    # Number of open incidents
-    open_incidents = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime,
-        Incident.status.in_(['New', 'Assigned', 'In Progress'])
-    ).count()
-    
-    # Number of resolved incidents
+    # Avg time to resolve (for closed incidents)
     resolved_incidents = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime,
-        Incident.status.in_(['Resolved', 'Closed'])
-    ).count()
-    
-    # Calculate Mean Time to Resolution (MTTR) in hours
-    resolved = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime,
-        Incident.status.in_(['Resolved', 'Closed']),
-        Incident.resolution_date.isnot(None)
+        Incident.status == 'Closed',
+        Incident.resolved_at != None
     ).all()
     
-    mttr = 0
-    if resolved:
-        total_resolution_time = sum(
-            (incident.resolution_date - incident.created_at).total_seconds() / 3600
-            for incident in resolved
-        )
-        mttr = total_resolution_time / len(resolved)
+    avg_time_to_resolve = 0
+    if resolved_incidents:
+        total_minutes = 0
+        for incident in resolved_incidents:
+            delta = incident.resolved_at - incident.created_at
+            total_minutes += delta.total_seconds() / 60
+        avg_time_to_resolve = total_minutes / len(resolved_incidents)
+    
+    return {
+        'total': total,
+        'open': open_incidents,
+        'critical': critical,
+        'unassigned': unassigned,
+        'recent': recent,
+        'avg_time_to_resolve_minutes': avg_time_to_resolve
+    }
+
+def generate_metrics():
+    """Generate comprehensive metrics for reporting"""
+    metrics = {}
+    
+    # Incidents by status
+    status_counts = {}
+    for status in ['Open', 'Investigating', 'Contained', 'Eradicated', 'Resolved', 'Closed']:
+        count = Incident.query.filter_by(status=status).count()
+        status_counts[status] = count
+    metrics['status_counts'] = status_counts
     
     # Incidents by severity
-    critical = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime,
-        Incident.severity == 'Critical'
-    ).count()
+    severity_counts = {}
+    for severity in ['Critical', 'High', 'Medium', 'Low']:
+        count = Incident.query.filter_by(severity=severity).count()
+        severity_counts[severity] = count
+    metrics['severity_counts'] = severity_counts
     
-    high = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime,
-        Incident.severity == 'High'
-    ).count()
+    # Incidents by type
+    type_counts = db.session.query(
+        Incident.type, db.func.count(Incident.id)
+    ).group_by(Incident.type).all()
+    metrics['type_counts'] = dict(type_counts)
     
-    medium = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime,
-        Incident.severity == 'Medium'
-    ).count()
-    
-    low = Incident.query.filter(
-        Incident.created_at >= start_datetime,
-        Incident.created_at <= end_datetime,
-        Incident.severity == 'Low'
-    ).count()
-    
-    # Store metrics in the database for historical tracking
-    today = datetime.utcnow().date()
-    
-    # Only store metrics once per day
-    if not Metric.query.filter_by(date=today, name='Total Incidents').first():
-        metrics_to_store = [
-            Metric(name='Total Incidents', value=total_incidents, date=today, metric_type='Count'),
-            Metric(name='Open Incidents', value=open_incidents, date=today, metric_type='Count'),
-            Metric(name='Resolved Incidents', value=resolved_incidents, date=today, metric_type='Count'),
-            Metric(name='MTTR', value=mttr, date=today, metric_type='Hours'),
-            Metric(name='Critical Incidents', value=critical, date=today, metric_type='Count'),
-            Metric(name='High Incidents', value=high, date=today, metric_type='Count'),
-            Metric(name='Medium Incidents', value=medium, date=today, metric_type='Count'),
-            Metric(name='Low Incidents', value=low, date=today, metric_type='Count')
-        ]
+    # Monthly trend (last 6 months)
+    monthly_counts = []
+    for i in range(5, -1, -1):
+        date = datetime.utcnow() - timedelta(days=30*i)
+        start_date = datetime(date.year, date.month, 1)
+        if date.month == 12:
+            end_date = datetime(date.year + 1, 1, 1)
+        else:
+            end_date = datetime(date.year, date.month + 1, 1)
         
-        for metric in metrics_to_store:
-            db.session.add(metric)
+        count = Incident.query.filter(
+            Incident.created_at >= start_date,
+            Incident.created_at < end_date
+        ).count()
         
-        db.session.commit()
+        monthly_counts.append({
+            'month': calendar.month_name[date.month],
+            'count': count
+        })
+    metrics['monthly_trend'] = monthly_counts
     
-    return {
-        'total_incidents': total_incidents,
-        'open_incidents': open_incidents,
-        'resolved_incidents': resolved_incidents,
-        'mttr': round(mttr, 2),
-        'critical': critical,
-        'high': high,
-        'medium': medium,
-        'low': low,
-        'period': f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+    # Average time to resolve (by severity)
+    avg_resolution_time = {}
+    for severity in ['Critical', 'High', 'Medium', 'Low']:
+        incidents = Incident.query.filter(
+            Incident.severity == severity,
+            Incident.status == 'Closed',
+            Incident.resolved_at != None
+        ).all()
+        
+        if incidents:
+            total_minutes = 0
+            for incident in incidents:
+                delta = incident.resolved_at - incident.created_at
+                total_minutes += delta.total_seconds() / 60
+            avg_resolution_time[severity] = total_minutes / len(incidents)
+        else:
+            avg_resolution_time[severity] = 0
+    metrics['avg_resolution_time'] = avg_resolution_time
+    
+    # PIR stats
+    total_incidents = Incident.query.filter_by(status='Closed').count()
+    total_pirs = PIR.query.count()
+    pir_completion_rate = 0
+    if total_incidents > 0:
+        pir_completion_rate = (total_pirs / total_incidents) * 100
+    
+    metrics['pir_stats'] = {
+        'total_pirs': total_pirs,
+        'completion_rate': pir_completion_rate
     }
+    
+    # PIR findings by type
+    finding_counts = db.session.query(
+        PIRFinding.finding_type, db.func.count(PIRFinding.id)
+    ).group_by(PIRFinding.finding_type).all()
+    metrics['finding_counts'] = dict(finding_counts)
+    
+    return metrics
 
-def format_datetime(value, format='%Y-%m-%d %H:%M:%S'):
-    """Format a datetime object to string"""
-    if value is None:
-        return ""
-    return value.strftime(format)
+def format_date(date, format='%Y-%m-%d %H:%M:%S'):
+    """Format a datetime object as string"""
+    if date is None:
+        return "N/A"
+    return date.strftime(format)
 
-def incident_to_dict(incident):
-    """Convert an incident object to a dictionary"""
-    return {
-        'id': incident.id,
-        'title': incident.title,
-        'description': incident.description,
-        'severity': incident.severity,
-        'status': incident.status,
-        'incident_type': incident.incident_type,
-        'impact': incident.impact,
-        'created_at': format_datetime(incident.created_at),
-        'updated_at': format_datetime(incident.updated_at),
-        'resolution_date': format_datetime(incident.resolution_date),
-        'resolution': incident.resolution,
-        'owner': incident.owner.full_name if incident.owner else None,
-        'created_by': incident.created_by.full_name if incident.created_by else None,
-        'assigned_to': incident.assigned_to.full_name if incident.assigned_to else None,
-        'tags': [{'id': tag.id, 'name': tag.name, 'color': tag.color} for tag in incident.tags],
-        'teams': [{'id': team.id, 'name': team.name} for team in incident.teams]
-    }
+def require_admin(f):
+    """Decorator to require admin role for a view"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_admin:
+            flash('Admin access required for this page', 'danger')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-def get_severity_color(severity):
-    """Get the color for a severity level"""
-    colors = {
-        'Critical': '#dc3545',  # Red
-        'High': '#fd7e14',      # Orange
-        'Medium': '#ffc107',    # Yellow
-        'Low': '#28a745'        # Green
-    }
-    return colors.get(severity, '#6c757d')  # Default to gray
+def get_user_roles(user_id):
+    """Get all roles for a user"""
+    user = User.query.get(user_id)
+    if user:
+        return user.roles
+    return []
 
-def get_status_color(status):
-    """Get the color for a status level"""
-    colors = {
-        'New': '#0d6efd',       # Blue
-        'Assigned': '#6610f2',  # Purple
-        'In Progress': '#6f42c1', # Indigo
-        'Resolved': '#20c997',  # Teal
-        'Closed': '#6c757d'     # Gray
-    }
-    return colors.get(status, '#6c757d')  # Default to gray
+def requires_role(role_name):
+    """Decorator to require a specific role for a view"""
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.has_role(role_name) and not current_user.is_admin:
+                flash(f'Role {role_name} required for this action', 'danger')
+                return redirect(url_for('dashboard'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
