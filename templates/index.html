@@ -3,93 +3,314 @@
 {% block title %}Security Incident Management System - Home{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-10">
-    <div class="card">
-      <div class="card-body text-center">
-        <h1 class="display-4 mb-4">
-          <i class="fas fa-shield-alt text-primary me-3"></i>
-          Security Incident Management System
-        </h1>
-        <p class="lead">
-          Comprehensive platform for tracking, responding to, and analyzing security incidents
-        </p>
-        <hr class="my-4">
-        <div class="row">
-          <div class="col-md-4 mb-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                <h3>Incident Management</h3>
-                <p>Track and manage security incidents throughout their lifecycle</p>
-              </div>
+<!-- Hero Section -->
+<div class="hero-section mb-5 py-5 text-center">
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="hero-content">
+          <div class="hero-icon mb-4">
+            <div class="hero-icon-inner">
+              <i class="fas fa-shield-alt"></i>
             </div>
+            <div class="hero-icon-pulse"></div>
           </div>
-          <div class="col-md-4 mb-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-book fa-3x text-info mb-3"></i>
-                <h3>Playbooks</h3>
-                <p>Standardized response procedures for common incident types</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 mb-4">
-            <div class="card h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
-                <h3>Analytics</h3>
-                <p>Measure and improve your security incident response capabilities</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="mt-4">
-          {% if current_user.is_authenticated %}
-            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
-              <i class="fas fa-tachometer-alt me-2"></i> Go to Dashboard
-            </a>
-          {% else %}
-            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">
-              <i class="fas fa-sign-in-alt me-2"></i> Login
-            </a>
-            <a href="{{ url_for('register') }}" class="btn btn-outline-secondary btn-lg">
-              <i class="fas fa-user-plus me-2"></i> Register
-            </a>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    
-    <div class="card mt-4">
-      <div class="card-body">
-        <h2 class="card-title">Compliant with Industry Standards</h2>
-        <div class="row mt-4">
-          <div class="col-md-6">
-            <div class="d-flex align-items-start mb-3">
-              <div class="flex-shrink-0 me-3">
-                <i class="fas fa-check-circle fa-2x text-success"></i>
-              </div>
-              <div>
-                <h5>NIST SP 800-61</h5>
-                <p class="text-muted">Computer Security Incident Handling Guide</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="d-flex align-items-start mb-3">
-              <div class="flex-shrink-0 me-3">
-                <i class="fas fa-check-circle fa-2x text-success"></i>
-              </div>
-              <div>
-                <h5>ISO/IEC 27035</h5>
-                <p class="text-muted">Information Security Incident Management</p>
-              </div>
-            </div>
+          <h1 class="display-4 fw-bold mb-3">Security Incident Management System</h1>
+          <p class="lead mb-4">
+            A comprehensive platform for tracking, responding to, and analyzing security incidents across your organization.
+          </p>
+          <div class="hero-buttons">
+            {% if current_user.is_authenticated %}
+              <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 py-2">
+                <i class="fas fa-tachometer-alt me-2"></i> Go to Dashboard
+              </a>
+            {% else %}
+              <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 py-2 me-3">
+                <i class="fas fa-sign-in-alt me-2"></i> Login
+              </a>
+              <a href="{{ url_for('register') }}" class="btn btn-outline-secondary btn-lg px-4 py-2">
+                <i class="fas fa-user-plus me-2"></i> Register
+              </a>
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Features Section -->
+<div class="container mb-5">
+  <div class="section-title text-center mb-5">
+    <h2 class="fw-bold">Key Features</h2>
+    <p class="text-muted">Streamline your incident response process with our powerful tools</p>
+  </div>
+  
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="feature-card card h-100 incident-card">
+        <div class="card-body text-center p-4">
+          <div class="feature-icon feature-icon-warning mb-3">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 class="feature-title mb-3">Incident Management</h3>
+          <p class="feature-text">
+            Track and manage security incidents throughout their lifecycle, from detection to resolution.
+          </p>
+          <ul class="feature-list text-start">
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Centralized incident tracking</li>
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Customizable incident classification</li>
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Timeline-based incident updates</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="feature-card card h-100 incident-card">
+        <div class="card-body text-center p-4">
+          <div class="feature-icon feature-icon-info mb-3">
+            <i class="fas fa-book"></i>
+          </div>
+          <h3 class="feature-title mb-3">Response Playbooks</h3>
+          <p class="feature-text">
+            Standardized response procedures for common incident types to ensure consistent handling.
+          </p>
+          <ul class="feature-list text-start">
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Step-by-step guides</li>
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Role-based responsibilities</li>
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Customizable by incident type</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="feature-card card h-100 incident-card">
+        <div class="card-body text-center p-4">
+          <div class="feature-icon feature-icon-success mb-3">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3 class="feature-title mb-3">Analytics & Insights</h3>
+          <p class="feature-text">
+            Measure and improve your security incident response capabilities with data-driven insights.
+          </p>
+          <ul class="feature-list text-start">
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Interactive dashboards</li>
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Trend analysis</li>
+            <li><i class="fas fa-check-circle me-2 text-primary"></i> Customizable reports</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Standards Section -->
+<div class="container mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card incident-card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-certificate me-2"></i> Compliant with Industry Standards</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="standard-item d-flex align-items-start mb-4">
+                <div class="standard-icon me-3">
+                  <i class="fas fa-check-circle text-success"></i>
+                </div>
+                <div>
+                  <h5 class="standard-title">NIST SP 800-61</h5>
+                  <p class="standard-description text-muted mb-0">
+                    Computer Security Incident Handling Guide
+                  </p>
+                  <ul class="standard-details small mt-2">
+                    <li>Preparation, Detection, Analysis</li>
+                    <li>Containment, Eradication, Recovery</li>
+                    <li>Post-Incident Activity</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="standard-item d-flex align-items-start mb-4">
+                <div class="standard-icon me-3">
+                  <i class="fas fa-check-circle text-success"></i>
+                </div>
+                <div>
+                  <h5 class="standard-title">ISO/IEC 27035</h5>
+                  <p class="standard-description text-muted mb-0">
+                    Information Security Incident Management
+                  </p>
+                  <ul class="standard-details small mt-2">
+                    <li>Plan and Prepare, Detection and Reporting</li>
+                    <li>Assessment and Decision, Responses</li>
+                    <li>Lessons Learned</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <a href="#" class="btn btn-outline-primary">
+              <i class="fas fa-info-circle me-2"></i> Learn More About Our Compliance
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Call-to-Action Section -->
+<div class="container mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="cta-section text-center p-5 rounded">
+        <h2 class="mb-3">Ready to Improve Your Incident Response Process?</h2>
+        <p class="lead mb-4">Get started today and take control of your security incident management.</p>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-tachometer-alt me-2"></i> Go to Dashboard
+          </a>
+        {% else %}
+          <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5">
+            <i class="fas fa-user-plus me-2"></i> Sign Up Now
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block head %}
+<style>
+  /* Hero Section Styles */
+  .hero-section {
+    position: relative;
+    background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1) 0%, rgba(var(--bs-primary-rgb), 0.05) 100%);
+    border-radius: 16px;
+    margin-bottom: 3rem;
+  }
+  
+  .hero-icon {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-icon-inner {
+    width: 80px;
+    height: 80px;
+    background-color: var(--bs-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 30px rgba(var(--bs-primary-rgb), 0.5);
+  }
+  
+  .hero-icon-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background-color: rgba(var(--bs-primary-rgb), 0.3);
+    animation: pulse 2s infinite;
+    z-index: 1;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.5);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
+  
+  .hero-buttons .btn {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+  }
+  
+  .hero-buttons .btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Feature Card Styles */
+  .feature-card {
+    border: none;
+    transition: all 0.3s ease;
+  }
+  
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    font-size: 2rem;
+    color: white;
+  }
+  
+  .feature-icon-warning {
+    background-color: var(--bs-warning);
+  }
+  
+  .feature-icon-info {
+    background-color: var(--bs-info);
+  }
+  
+  .feature-icon-success {
+    background-color: var(--bs-success);
+  }
+  
+  .feature-list {
+    list-style: none;
+    padding-left: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  
+  .feature-list li {
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Standards Section Styles */
+  .standard-icon {
+    font-size: 1.75rem;
+    min-width: 35px;
+  }
+  
+  .standard-details {
+    list-style: disc;
+    padding-left: 1.25rem;
+    color: var(--bs-gray-600);
+  }
+  
+  /* CTA Section Styles */
+  .cta-section {
+    background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1) 0%, rgba(var(--bs-primary-rgb), 0.2) 100%);
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+</style>
 {% endblock %}

@@ -19,13 +19,41 @@
   
   {% block head %}{% endblock %}
 </head>
-<body>
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<body class="d-flex flex-column min-vh-100">
+  <!-- Top Mini-bar for System Status and User Options -->
+  <div class="navbar navbar-dark bg-primary py-1 px-3 d-none d-md-block mini-navbar">
+    <div class="container-fluid">
+      <div class="navbar-text small text-white">
+        <i class="fas fa-shield-alt me-1"></i> Security Incident Management System
+      </div>
+      <div class="d-flex align-items-center">
+        <div class="theme-switch-wrapper me-3">
+          <label class="theme-switch" for="themeToggle">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider round">
+              <i class="fas fa-moon"></i>
+              <i class="fas fa-sun"></i>
+            </span>
+          </label>
+        </div>
+        <div class="current-time small text-white me-2">
+          <i class="fas fa-clock me-1"></i> <span id="current-time"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm mb-4">
     <div class="container">
-      <a class="navbar-brand" href="{{ url_for('index') }}">
-        <i class="fas fa-shield-alt me-2"></i>
-        SIMS
+      <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+        <div class="brand-icon me-2">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="brand-text">
+          <span class="fw-bold">SIMS</span>
+          <span class="d-none d-lg-inline small text-muted ms-1">Incident Management</span>
+        </div>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -34,54 +62,114 @@
         <ul class="navbar-nav me-auto">
           {% if current_user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('dashboard') }}">
-              <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('dashboard') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-tachometer-alt"></i>
+              </div>
+              <span>Dashboard</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('incident_list') }}">
-              <i class="fas fa-exclamation-triangle me-1"></i> Incidents
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('incident_list') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <span>Incidents</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('playbook_list') }}">
-              <i class="fas fa-book me-1"></i> Playbooks
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('playbook_list') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-book"></i>
+              </div>
+              <span>Playbooks</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('communication_templates') }}">
-              <i class="fas fa-comment-alt me-1"></i> Communications
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('communication_templates') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-comment-alt"></i>
+              </div>
+              <span>Communications</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('pir_list') }}">
-              <i class="fas fa-search me-1"></i> PIRs
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('pir_list') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-search"></i>
+              </div>
+              <span>PIRs</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('reports_metrics') }}">
-              <i class="fas fa-chart-bar me-1"></i> Reports
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('reports_metrics') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-chart-bar"></i>
+              </div>
+              <span>Reports</span>
             </a>
           </li>
           {% if current_user.is_admin %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
-              <i class="fas fa-cog me-1"></i> Admin
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-cog"></i>
+              </div>
+              <span>Admin</span>
             </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('admin_users') }}">Users</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('admin_roles') }}">Roles</a></li>
+            <ul class="dropdown-menu dropdown-menu-custom">
+              <li><a class="dropdown-item" href="{{ url_for('admin_users') }}"><i class="fas fa-users me-2"></i> Users</a></li>
+              <li><a class="dropdown-item" href="{{ url_for('admin_roles') }}"><i class="fas fa-user-tag me-2"></i> Roles</a></li>
+              {% if current_user.is_admin %}
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{{ url_for('generate_demo_data') }}"><i class="fas fa-database me-2"></i> Generate Demo Data</a></li>
+              {% endif %}
             </ul>
           </li>
           {% endif %}
           {% endif %}
         </ul>
         <ul class="navbar-nav">
-          <!-- Theme Toggle -->
-          <li class="nav-item me-3">
-            <div class="theme-switch-wrapper mt-2">
-              <label class="theme-switch" for="themeToggle">
-                <input type="checkbox" id="themeToggle">
+          {% if current_user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              <div class="nav-icon-wrapper me-2 user-avatar">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <span>{{ current_user.username }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-custom">
+              <li class="dropdown-header">{{ current_user.first_name }} {{ current_user.last_name }}</li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2"></i> Profile</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-bell me-2"></i> Notifications</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('login') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-sign-in-alt"></i>
+              </div>
+              <span>Login</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center" href="{{ url_for('register') }}">
+              <div class="nav-icon-wrapper me-2">
+                <i class="fas fa-user-plus"></i>
+              </div>
+              <span>Register</span>
+            </a>
+          </li>
+          {% endif %}
+          
+          <!-- Mobile only theme toggle -->
+          <li class="nav-item d-block d-md-none">
+            <div class="theme-switch-wrapper mt-2 ms-3">
+              <label class="theme-switch" for="mobileThemeToggle">
+                <input type="checkbox" id="mobileThemeToggle">
                 <span class="slider round">
                   <i class="fas fa-moon"></i>
                   <i class="fas fa-sun"></i>
@@ -89,23 +177,6 @@
               </label>
             </div>
           </li>
-          
-          {% if current_user.is_authenticated %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-              <i class="fas fa-user-circle me-1"></i> {{ current_user.username }}
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="#">Profile</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
-            </ul>
-          </li>
-          {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-          </li>
-          {% endif %}
         </ul>
       </div>
     </div>
@@ -116,7 +187,16 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show">
+          <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm">
+            {% if category == 'success' %}
+              <i class="fas fa-check-circle me-2"></i>
+            {% elif category == 'danger' %}
+              <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif category == 'warning' %}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+            {% elif category == 'info' %}
+              <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
           </div>
@@ -126,14 +206,28 @@
   </div>
   
   <!-- Main Content -->
-  <main class="container mb-5">
+  <main class="container mb-5 flex-grow-1">
     {% block content %}{% endblock %}
   </main>
   
   <!-- Footer -->
-  <footer class="footer mt-auto py-3 bg-dark">
-    <div class="container text-center">
-      <span class="text-muted">Security Incident Management System &copy; 2025</span>
+  <footer class="footer py-4 mt-auto">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-4 text-center text-md-start">
+          <a class="footer-brand d-inline-flex align-items-center text-decoration-none" href="{{ url_for('index') }}">
+            <i class="fas fa-shield-alt me-2"></i>
+            <span class="fw-bold">SIMS</span>
+          </a>
+        </div>
+        <div class="col-md-4 text-center my-3 my-md-0">
+          <span class="text-muted">&copy; 2025 Security Incident Management System</span>
+        </div>
+        <div class="col-md-4 text-center text-md-end">
+          <a href="#" class="text-muted me-3"><i class="fas fa-question-circle"></i> Help</a>
+          <a href="#" class="text-muted"><i class="fas fa-info-circle"></i> About</a>
+        </div>
+      </div>
     </div>
   </footer>
   
@@ -143,33 +237,75 @@
   <!-- Custom JS -->
   {% block scripts %}{% endblock %}
   
-  <!-- Theme Toggle JS -->
+  <!-- Theme Toggle and Other JS -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Theme toggle functionality
       const themeToggle = document.getElementById('themeToggle');
+      const mobileThemeToggle = document.getElementById('mobileThemeToggle');
       const htmlElement = document.documentElement;
       
       // Check if user previously saved a theme preference
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme) {
         htmlElement.setAttribute('data-bs-theme', savedTheme);
-        // If the saved theme is 'light', check the toggle
-        if (savedTheme === 'light') {
-          themeToggle.checked = true;
-        }
+        // If the saved theme is 'light', check both toggles
+        const isLight = savedTheme === 'light';
+        if (themeToggle) themeToggle.checked = isLight;
+        if (mobileThemeToggle) mobileThemeToggle.checked = isLight;
       }
       
-      // Toggle theme when switch is clicked
-      themeToggle.addEventListener('change', function() {
-        if (this.checked) {
-          // Light mode
-          htmlElement.setAttribute('data-bs-theme', 'light');
-          localStorage.setItem('theme', 'light');
-        } else {
-          // Dark mode (default)
-          htmlElement.setAttribute('data-bs-theme', 'dark');
-          localStorage.setItem('theme', 'dark');
+      // Toggle theme function
+      const toggleTheme = function(isLight) {
+        htmlElement.setAttribute('data-bs-theme', isLight ? 'light' : 'dark');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        
+        // Keep toggles in sync
+        if (themeToggle) themeToggle.checked = isLight;
+        if (mobileThemeToggle) mobileThemeToggle.checked = isLight;
+      };
+      
+      // Add event listeners to both toggles
+      if (themeToggle) {
+        themeToggle.addEventListener('change', function() {
+          toggleTheme(this.checked);
+        });
+      }
+      
+      if (mobileThemeToggle) {
+        mobileThemeToggle.addEventListener('change', function() {
+          toggleTheme(this.checked);
+        });
+      }
+      
+      // Current time display
+      const updateCurrentTime = function() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateString = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+        
+        const timeElements = document.querySelectorAll('#current-time');
+        timeElements.forEach(el => {
+          el.textContent = `${dateString}, ${timeString}`;
+        });
+      };
+      
+      // Update time immediately and then every minute
+      updateCurrentTime();
+      setInterval(updateCurrentTime, 60000);
+      
+      // Add 'active' class to current nav link
+      const currentPath = window.location.pathname;
+      document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+          link.classList.add('active');
         }
+      });
+      
+      // Initialize any tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
       });
     });
   </script>
