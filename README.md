@@ -58,7 +58,7 @@ SecIMS is a comprehensive platform for tracking, responding to, and analyzing se
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/security-incident-management.git
+   git clone https://github.com/frankysoo/security-incident-management.git
    cd security-incident-management
    ```
 
