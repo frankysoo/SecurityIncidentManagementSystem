@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+{% block title %}Security Incident Management System - Home{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4 mb-4">Security Incident Management System</h1>
+            <p class="lead mb-5">A comprehensive system for tracking, responding to, and analyzing security incidents following NIST SP 800-61 and ISO 27035 frameworks.</p>
+            
+            <div class="card bg-dark mb-5">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+                                <h5>Incident Tracking</h5>
+                                <p>Log and track security incidents through their entire lifecycle</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-book fa-3x mb-3"></i>
+                                <h5>Response Playbooks</h5>
+                                <p>Follow standardized response procedures for common incidents</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3">
+                                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                <h5>Metrics & Analysis</h5>
+                                <p>Gain insights through comprehensive incident analytics</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-md-2">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-info-circle me-2"></i>Learn More
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

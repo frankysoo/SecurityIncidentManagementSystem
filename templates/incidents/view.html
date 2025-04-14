@@ -1,0 +1,729 @@
+{% extends 'layout.html' %}
+
+{% block title %}Incident #{{ incident.id }} - Security Incident Management System{% endblock %}
+
+{% block head %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    .timeline:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background-color: var(--bs-primary);
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    .timeline-item:before {
+        content: '';
+        position: absolute;
+        left: -34px;
+        top: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: var(--bs-primary);
+    }
+    .tab-content {
+        min-height: 300px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>
+            <i class="fas fa-exclamation-triangle me-2"></i>Incident #{{ incident.id }}
+            <span class="badge bg-{{ 
+                'danger' if incident.severity == 'critical' else
+                'warning' if incident.severity == 'high' else
+                'primary' if incident.severity == 'medium' else
+                'info' if incident.severity == 'low' else
+                'secondary'
+            }}">
+                {{ incident.severity|capitalize }}
+            </span>
+            <span class="badge bg-{{ 
+                'danger' if incident.status == 'open' else
+                'warning' if incident.status == 'in-progress' else
+                'info' if incident.status == 'contained' else
+                'success' if incident.status == 'resolved' else
+                'secondary' if incident.status == 'closed' else
+                'dark'
+            }}">
+                {{ incident.status|capitalize }}
+            </span>
+        </h2>
+        <p class="lead">{{ incident.title }}</p>
+    </div>
+    <div>
+        <a href="{{ url_for('list_incidents') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <!-- Main Incident Information Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <ul class="nav nav-tabs card-header-tabs" id="incidentTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab" aria-controls="details" aria-selected="true">Details</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button" role="tab" aria-controls="timeline" aria-selected="false">Timeline</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="false">Comments</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="resolution-tab" data-bs-toggle="tab" data-bs-target="#resolution" type="button" role="tab" aria-controls="resolution" aria-selected="false">Resolution</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content" id="incidentTabsContent">
+                    <!-- Details Tab -->
+                    <div class="tab-pane fade show active" id="details" role="tabpanel" aria-labelledby="details-tab">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p><strong>Incident Type:</strong> {{ incident.incident_type|replace('_', ' ')|capitalize }}</p>
+                                <p><strong>Created By:</strong> {{ incident.creator.get_full_name() }}</p>
+                                <p><strong>Created At:</strong> {{ incident.created_at|format_datetime }}</p>
+                                <p><strong>Detection Time:</strong> {{ incident.detection_time|format_datetime if incident.detection_time else 'Not specified' }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Assigned To:</strong> 
+                                    <span id="assignee-display">
+                                        {% if incident.assignee %}
+                                            {{ incident.assignee.get_full_name() }}
+                                        {% else %}
+                                            <em>Unassigned</em>
+                                        {% endif %}
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#assignModal">
+                                        <i class="fas fa-user-edit"></i>
+                                    </button>
+                                </p>
+                                <p><strong>Assigned Team:</strong> 
+                                    <span id="team-display">
+                                        {% if incident.team %}
+                                            {{ incident.team.name }}
+                                        {% else %}
+                                            <em>No team assigned</em>
+                                        {% endif %}
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#assignTeamModal">
+                                        <i class="fas fa-users-cog"></i>
+                                    </button>
+                                </p>
+                                <p><strong>Last Updated:</strong> {{ incident.updated_at|format_datetime }}</p>
+                                <p><strong>Resolution Time:</strong> {{ incident.resolution_time|format_datetime if incident.resolution_time else 'Not resolved yet' }}</p>
+                            </div>
+                        </div>
+                        
+                        <h5>Description</h5>
+                        <div class="mb-3">
+                            <p>{{ incident.description or 'No description provided.' }}</p>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Affected Systems</h5>
+                                <div class="mb-3">
+                                    {% if incident.affected_systems %}
+                                        <ul class="list-group">
+                                            {% for system in incident.affected_systems %}
+                                                <li class="list-group-item">{{ system }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p><em>No affected systems specified</em></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Tags</h5>
+                                <div class="mb-3">
+                                    {% if incident.tags %}
+                                        {% for tag in incident.tags %}
+                                            <span class="badge bg-secondary me-1">{{ tag }}</span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p><em>No tags</em></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Tab -->
+                    <div class="tab-pane fade" id="timeline" role="tabpanel" aria-labelledby="timeline-tab">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5>Incident Timeline</h5>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addActivityModal">
+                                <i class="fas fa-plus me-2"></i>Add Activity
+                            </button>
+                        </div>
+                        
+                        <div class="timeline" id="activity-timeline">
+                            {% if activities %}
+                                {% for activity in activities %}
+                                    <div class="timeline-item">
+                                        <div class="card mb-2">
+                                            <div class="card-header bg-{{ 
+                                                'danger' if activity.activity_type == 'detection' else
+                                                'info' if activity.activity_type == 'analysis' else
+                                                'warning' if activity.activity_type == 'containment' else
+                                                'primary' if activity.activity_type == 'eradication' else
+                                                'success' if activity.activity_type == 'recovery' else
+                                                'secondary' if activity.activity_type == 'post-incident' else
+                                                'dark'
+                                            }} text-white py-1">
+                                                <small>{{ activity.created_at|format_datetime }} - {{ activity.activity_type|capitalize }}</small>
+                                            </div>
+                                            <div class="card-body py-2">
+                                                <p class="mb-1">{{ activity.description }}</p>
+                                                <small class="text-muted">By {{ activity.user.get_full_name() }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p><em>No activities recorded yet</em></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Comments Tab -->
+                    <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+                        <div class="mb-3">
+                            <form id="comment-form">
+                                <div class="mb-3">
+                                    <label for="comment-content" class="form-label">Add Comment</label>
+                                    <textarea class="form-control" id="comment-content" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-comment me-2"></i>Post Comment
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div id="comments-container">
+                            {% if comments %}
+                                {% for comment in comments %}
+                                    <div class="card mb-3">
+                                        <div class="card-header bg-dark py-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span>{{ comment.author.get_full_name() }}</span>
+                                                <small>{{ comment.created_at|format_datetime }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="mb-0">{{ comment.content }}</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p id="no-comments-message"><em>No comments yet</em></p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Resolution Tab -->
+                    <div class="tab-pane fade" id="resolution" role="tabpanel" aria-labelledby="resolution-tab">
+                        <h5>Resolution Notes</h5>
+                        <div class="mb-3">
+                            <textarea class="form-control" id="resolution-notes" rows="6" placeholder="Document how the incident was resolved, including actions taken, impacts, and any remaining concerns">{{ incident.resolution or '' }}</textarea>
+                        </div>
+                        <button id="save-resolution" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Resolution
+                        </button>
+                        
+                        <hr>
+                        
+                        <h5>Close Incident</h5>
+                        <p>Update the incident status when appropriate:</p>
+                        <div class="d-flex gap-2">
+                            {% for status in status_options %}
+                                <button class="btn btn-{{ 
+                                    'danger' if status == 'open' else
+                                    'warning' if status == 'in-progress' else
+                                    'info' if status == 'contained' else
+                                    'success' if status == 'resolved' else
+                                    'secondary' if status == 'closed' else
+                                    'dark'
+                                }} status-btn" data-status="{{ status }}" {% if status == incident.status %}disabled{% endif %}>
+                                    {{ status|capitalize }}
+                                </button>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Post-Incident Review</h5>
+                            {% if incident.status in ['resolved', 'closed'] %}
+                                {% if incident.pir %}
+                                    <p>A PIR has been conducted for this incident.</p>
+                                    <a href="{{ url_for('view_pir', pir_id=incident.pir[0].id) }}" class="btn btn-info">
+                                        <i class="fas fa-clipboard-check me-2"></i>View PIR
+                                    </a>
+                                {% else %}
+                                    <p>No PIR has been conducted yet.</p>
+                                    <a href="{{ url_for('create_pir', incident_id=incident.id) }}" class="btn btn-primary">
+                                        <i class="fas fa-clipboard-check me-2"></i>Conduct PIR
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <p>A Post-Incident Review can be conducted after the incident is resolved.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Sidebar Cards -->
+        <!-- Playbooks -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0"><i class="fas fa-book me-2"></i>Related Playbooks</h5>
+            </div>
+            <div class="card-body">
+                {% if playbooks %}
+                    <div class="list-group">
+                        {% for playbook in playbooks %}
+                            <a href="{{ url_for('view_playbook', playbook_id=playbook.id) }}" class="list-group-item list-group-item-action">
+                                {{ playbook.title }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p><em>No playbooks available for this incident type</em></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Communication Templates -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0"><i class="fas fa-comment-alt me-2"></i>Communication Templates</h5>
+            </div>
+            <div class="card-body">
+                {% if templates %}
+                    <div class="accordion" id="templateAccordion">
+                        {% for template in templates %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading{{ template.id }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ template.id }}" aria-expanded="false" aria-controls="collapse{{ template.id }}">
+                                        {{ template.name }} <span class="badge bg-secondary ms-2">{{ template.template_type }}</span>
+                                    </button>
+                                </h2>
+                                <div id="collapse{{ template.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ template.id }}" data-bs-parent="#templateAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Subject:</strong> {{ template.subject }}</p>
+                                        <p><strong>Body:</strong></p>
+                                        <div class="border p-2 mb-2 bg-dark">{{ template.body }}</div>
+                                        <button class="btn btn-sm btn-primary copy-template" data-template-id="{{ template.id }}">
+                                            <i class="fas fa-copy me-1"></i>Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p><em>No communication templates available</em></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <button class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#assignModal">
+                        <i class="fas fa-user-edit me-2"></i>Assign to User
+                    </button>
+                    <button class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#assignTeamModal">
+                        <i class="fas fa-users-cog me-2"></i>Assign to Team
+                    </button>
+                    <button class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#addActivityModal">
+                        <i class="fas fa-plus-circle me-2"></i>Add Activity
+                    </button>
+                    <a href="{{ url_for('metrics_report') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-chart-line me-2"></i>View Metrics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Assign User Modal -->
+<div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignModalLabel">Assign Incident</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="assigned-user" class="form-label">Assign to User</label>
+                    <select class="form-select" id="assigned-user">
+                        <option value="none">Unassign</option>
+                        {% for user in assignable_users %}
+                            <option value="{{ user.id }}" {% if incident.assigned_to == user.id %}selected{% endif %}>
+                                {{ user.get_full_name() }} ({{ user.role }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-assignment">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Team Modal -->
+<div class="modal fade" id="assignTeamModal" tabindex="-1" aria-labelledby="assignTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignTeamModalLabel">Assign Team</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="assigned-team" class="form-label">Assign to Team</label>
+                    <select class="form-select" id="assigned-team">
+                        <option value="none">No team</option>
+                        {% for team in teams %}
+                            <option value="{{ team.id }}" {% if incident.assigned_team == team.id %}selected{% endif %}>
+                                {{ team.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-team-assignment">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Activity Modal -->
+<div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addActivityModalLabel">Add Activity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="activity-form">
+                    <div class="mb-3">
+                        <label for="activity-type" class="form-label">Activity Type</label>
+                        <select class="form-select" id="activity-type" required>
+                            {% for type in activity_type_options %}
+                                <option value="{{ type }}">{{ type|capitalize }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="activity-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="activity-description" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-activity">Add Activity</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const incidentId = {{ incident.id }};
+        
+        // Save assignment
+        document.getElementById('save-assignment').addEventListener('click', function() {
+            const userId = document.getElementById('assigned-user').value;
+            updateIncident('assigned_to', userId);
+        });
+        
+        // Save team assignment
+        document.getElementById('save-team-assignment').addEventListener('click', function() {
+            const teamId = document.getElementById('assigned-team').value;
+            updateIncident('assigned_team', teamId);
+        });
+        
+        // Save activity
+        document.getElementById('save-activity').addEventListener('click', function() {
+            const activityType = document.getElementById('activity-type').value;
+            const description = document.getElementById('activity-description').value;
+            
+            if (!description) {
+                alert('Please enter a description');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('activity_type', activityType);
+            formData.append('description', description);
+            
+            fetch(`/incidents/${incidentId}/add_activity`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add new activity to timeline
+                    const timelineContainer = document.getElementById('activity-timeline');
+                    
+                    // Determine color class based on activity type
+                    let colorClass;
+                    switch(activityType) {
+                        case 'detection': colorClass = 'danger'; break;
+                        case 'analysis': colorClass = 'info'; break;
+                        case 'containment': colorClass = 'warning'; break;
+                        case 'eradication': colorClass = 'primary'; break;
+                        case 'recovery': colorClass = 'success'; break;
+                        case 'post-incident': colorClass = 'secondary'; break;
+                        default: colorClass = 'dark';
+                    }
+                    
+                    const activityHtml = `
+                        <div class="timeline-item">
+                            <div class="card mb-2">
+                                <div class="card-header bg-${colorClass} text-white py-1">
+                                    <small>${data.activity.created_at} - ${data.activity.activity_type.charAt(0).toUpperCase() + data.activity.activity_type.slice(1)}</small>
+                                </div>
+                                <div class="card-body py-2">
+                                    <p class="mb-1">${data.activity.description}</p>
+                                    <small class="text-muted">By ${data.activity.user}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Check if "No activities" message exists and remove it
+                    const noActivitiesMsg = timelineContainer.querySelector('p');
+                    if (noActivitiesMsg && noActivitiesMsg.textContent.includes('No activities')) {
+                        timelineContainer.removeChild(noActivitiesMsg);
+                    }
+                    
+                    // Insert new activity at the beginning of timeline
+                    timelineContainer.insertAdjacentHTML('afterbegin', activityHtml);
+                    
+                    // Reset and close modal
+                    document.getElementById('activity-form').reset();
+                    bootstrap.Modal.getInstance(document.getElementById('addActivityModal')).hide();
+                } else {
+                    alert('Error adding activity: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the activity');
+            });
+        });
+        
+        // Status update buttons
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const status = this.dataset.status;
+                updateIncident('status', status);
+            });
+        });
+        
+        // Save resolution notes
+        document.getElementById('save-resolution').addEventListener('click', function() {
+            const resolution = document.getElementById('resolution-notes').value;
+            updateIncident('resolution', resolution);
+        });
+        
+        // Add comment form submission
+        document.getElementById('comment-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const content = document.getElementById('comment-content').value;
+            if (!content) {
+                alert('Comment cannot be empty');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('content', content);
+            
+            fetch(`/incidents/${incidentId}/add_comment`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add new comment to the comments container
+                    const commentsContainer = document.getElementById('comments-container');
+                    
+                    // Check if "No comments" message exists and remove it
+                    const noCommentsMsg = document.getElementById('no-comments-message');
+                    if (noCommentsMsg) {
+                        commentsContainer.removeChild(noCommentsMsg);
+                    }
+                    
+                    const commentHtml = `
+                        <div class="card mb-3">
+                            <div class="card-header bg-dark py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>${data.comment.author}</span>
+                                    <small>${data.comment.created_at}</small>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-0">${data.comment.content}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Insert new comment at the beginning
+                    commentsContainer.insertAdjacentHTML('afterbegin', commentHtml);
+                    
+                    // Reset form
+                    document.getElementById('comment-form').reset();
+                } else {
+                    alert('Error adding comment: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the comment');
+            });
+        });
+        
+        // Function to update incident field
+        function updateIncident(field, value) {
+            const formData = new FormData();
+            formData.append('field', field);
+            formData.append('value', value);
+            
+            fetch(`/incidents/${incidentId}/update`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update UI based on the field that was updated
+                    if (field === 'assigned_to') {
+                        updateAssigneeDisplay(value);
+                        bootstrap.Modal.getInstance(document.getElementById('assignModal')).hide();
+                    } else if (field === 'assigned_team') {
+                        updateTeamDisplay(value);
+                        bootstrap.Modal.getInstance(document.getElementById('assignTeamModal')).hide();
+                    } else if (field === 'status') {
+                        updateStatusButtons(value);
+                        // Refresh page if status changes to show updated PIR options
+                        location.reload();
+                    } else if (field === 'resolution') {
+                        alert('Resolution notes saved successfully');
+                    }
+                } else {
+                    alert('Error updating incident: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the incident');
+            });
+        }
+        
+        // Helper function to update assignee display
+        function updateAssigneeDisplay(userId) {
+            const assigneeDisplay = document.getElementById('assignee-display');
+            if (userId === 'none') {
+                assigneeDisplay.innerHTML = '<em>Unassigned</em>';
+            } else {
+                const selectedOption = document.querySelector(`#assigned-user option[value="${userId}"]`);
+                if (selectedOption) {
+                    assigneeDisplay.textContent = selectedOption.textContent;
+                }
+            }
+        }
+        
+        // Helper function to update team display
+        function updateTeamDisplay(teamId) {
+            const teamDisplay = document.getElementById('team-display');
+            if (teamId === 'none') {
+                teamDisplay.innerHTML = '<em>No team assigned</em>';
+            } else {
+                const selectedOption = document.querySelector(`#assigned-team option[value="${teamId}"]`);
+                if (selectedOption) {
+                    teamDisplay.textContent = selectedOption.textContent;
+                }
+            }
+        }
+        
+        // Helper function to update status buttons
+        function updateStatusButtons(newStatus) {
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                if (btn.dataset.status === newStatus) {
+                    btn.disabled = true;
+                } else {
+                    btn.disabled = false;
+                }
+            });
+        }
+        
+        // Copy template functionality
+        document.querySelectorAll('.copy-template').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const templateId = this.dataset.templateId;
+                const template = document.querySelector(`#collapse${templateId} .accordion-body .border`).textContent;
+                
+                // Create a textarea to copy from (invisible)
+                const textarea = document.createElement('textarea');
+                textarea.value = template;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                // Show copied feedback
+                this.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy me-1"></i>Copy';
+                }, 2000);
+            });
+        });
+    });
+</script>
+{% endblock %}
