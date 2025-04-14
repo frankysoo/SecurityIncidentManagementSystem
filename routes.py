@@ -100,6 +100,20 @@ def index():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
+@app.route('/generate-demo-data')
+@login_required
+@require_admin
+def generate_demo_data():
+    try:
+        from demo_data_generator import run_demo_data_generator
+        run_demo_data_generator()
+        flash('Demo data generated successfully!', 'success')
+    except Exception as e:
+        app.logger.error(f"Error generating demo data: {str(e)}")
+        flash(f'Error generating demo data: {str(e)}', 'danger')
+    
+    return redirect(url_for('dashboard'))
+
 @app.route('/dashboard')
 @login_required
 def dashboard():

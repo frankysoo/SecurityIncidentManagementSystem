@@ -77,6 +77,19 @@
           {% endif %}
         </ul>
         <ul class="navbar-nav">
+          <!-- Theme Toggle -->
+          <li class="nav-item me-3">
+            <div class="theme-switch-wrapper mt-2">
+              <label class="theme-switch" for="themeToggle">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider round">
+                  <i class="fas fa-moon"></i>
+                  <i class="fas fa-sun"></i>
+                </span>
+              </label>
+            </div>
+          </li>
+          
           {% if current_user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
@@ -129,5 +142,36 @@
   
   <!-- Custom JS -->
   {% block scripts %}{% endblock %}
+  
+  <!-- Theme Toggle JS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const themeToggle = document.getElementById('themeToggle');
+      const htmlElement = document.documentElement;
+      
+      // Check if user previously saved a theme preference
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        htmlElement.setAttribute('data-bs-theme', savedTheme);
+        // If the saved theme is 'light', check the toggle
+        if (savedTheme === 'light') {
+          themeToggle.checked = true;
+        }
+      }
+      
+      // Toggle theme when switch is clicked
+      themeToggle.addEventListener('change', function() {
+        if (this.checked) {
+          // Light mode
+          htmlElement.setAttribute('data-bs-theme', 'light');
+          localStorage.setItem('theme', 'light');
+        } else {
+          // Dark mode (default)
+          htmlElement.setAttribute('data-bs-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
