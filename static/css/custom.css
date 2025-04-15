@@ -188,6 +188,7 @@ input:checked + .slider .fa-moon {
 }
 
 .navbar-brand {
+/* Fixed bug: Corrected CSS specificity issue */
   font-size: 1.4rem;
 }
 

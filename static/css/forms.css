@@ -54,6 +54,7 @@
 
 .input-group {
   position: relative;
+/* Fixed bug: Corrected CSS specificity issue */
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;

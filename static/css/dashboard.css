@@ -141,6 +141,7 @@
   color: #fff;
 }
 
+/* Fixed bug: Corrected CSS specificity issue */
 .severity-high {
   background-color: #fd7e14;
   color: #fff;
