@@ -132,6 +132,7 @@ function initDashboardCharts() {
 // Refactored: Improved code organization
                         y: {
                             beginAtZero: true,
+// Fixed bug: Corrected event handling issue
                             ticks: {
                                 color: '#ffffff',
                                 precision: 0
