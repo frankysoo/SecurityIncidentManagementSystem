@@ -1,11 +1,11 @@
 from app import db
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Helper function for timezone-aware UTC timestamps
 def utc_now():
-    return datetime.now(datetime.timezone.utc)
+    return datetime.now(timezone.utc)
 
 # Association tables for many-to-many relationships
 UserRole = db.Table('user_roles',
@@ -36,7 +36,7 @@ class User(UserMixin, db.Model):
     roles = db.relationship('Role', secondary=UserRole, backref=db.backref('users', lazy='dynamic'))
     incidents_created = db.relationship('Incident', backref='creator', lazy='dynamic', foreign_keys='Incident.created_by')
     incident_updates = db.relationship('IncidentUpdate', backref='user', lazy='dynamic')
-    incident_roles = db.relationship('Role', secondary=IncidentRole, backref=db.backref('incident_users', lazy='dynamic'))
+    incident_roles = db.relationship('Role', secondary=IncidentRole, backref=db.backref('incident_users', lazy='dynamic'), overlaps="incidents")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -65,9 +65,9 @@ class Incident(db.Model):
     severity = db.Column(db.String(20), nullable=False, index=True)  # Critical, High, Medium, Low
     status = db.Column(db.String(20), nullable=False, index=True)  # Open, Investigating, Contained, Eradicated, Resolved, Closed
     type = db.Column(db.String(64), nullable=False, index=True)  # Malware, Phishing, Data Breach, etc.
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc), index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc), onupdate=lambda: datetime.now(datetime.timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     detected_at = db.Column(db.DateTime, nullable=False)
     resolved_at = db.Column(db.DateTime)
     assigned_to = db.Column(db.Integer, db.ForeignKey('user.id'), index=True)
@@ -78,7 +78,7 @@ class Incident(db.Model):
     assignee = db.relationship('User', foreign_keys=[assigned_to], backref='assigned_incidents')
 
     # Team members with their roles
-    team_members = db.relationship('User', secondary=IncidentRole, backref=db.backref('incidents', lazy='dynamic'))
+    team_members = db.relationship('User', secondary=IncidentRole, backref=db.backref('incidents', lazy='dynamic', overlaps="incident_roles,incident_users"), overlaps="incident_roles,incident_users")
 
     def __repr__(self):
         return f'<Incident {self.id}: {self.title}>'

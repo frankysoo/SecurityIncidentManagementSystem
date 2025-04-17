@@ -47,12 +47,17 @@ from utils.password_policy import validate_password
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if not User.query.count() == 0 and not current_user.is_authenticated:
-        # Only allow registration if no users exist or if logged in
-        flash('Registration is restricted', 'danger')
-        return redirect(url_for('login'))
+    # Temporarily allow registration for all users
+    # if not User.query.count() == 0 and not current_user.is_authenticated:
+    #     # Only allow registration if no users exist or if logged in
+    #     flash('Registration is restricted', 'danger')
+    #     return redirect(url_for('login'))
 
     if request.method == 'POST':
+        # Debug information
+        app.logger.info(f"Registration form submitted: {request.form}")
+        app.logger.info(f"CSRF token in form: {request.form.get('csrf_token')}")
+
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
@@ -61,14 +66,18 @@ def register():
         last_name = request.form.get('last_name')
         phone = request.form.get('phone')
 
+        app.logger.info(f"Registration data: username={username}, email={email}, password_length={len(password) if password else 0}")
+
         # Validate password
         is_valid, error_message = validate_password(password)
         if not is_valid:
+            app.logger.warning(f"Password validation failed: {error_message}")
             flash(error_message, 'danger')
             return render_template('register.html')
 
         # Check if passwords match
         if password != confirm_password:
+            app.logger.warning("Passwords do not match")
             flash('Passwords do not match', 'danger')
             return render_template('register.html')
 
@@ -280,6 +289,7 @@ def incident_update(incident_id):
         if status_change and status_change != incident.status:
             incident.status = status_change
             if status_change == 'Closed':
+                from datetime import timezone
                 incident.resolved_at = datetime.now(timezone.utc)
 
         db.session.commit()
