@@ -156,8 +156,8 @@ def dashboard():
     team_incidents = Incident.query.join(IncidentRole, Incident.id == IncidentRole.c.incident_id)\
                               .filter(IncidentRole.c.user_id == current_user.id)\
                               .filter(Incident.status != 'Closed')\
-# Refactored: Improved code organization
                               .all()
+    # Refactored: Improved code organization
 
     return render_template('dashboard.html',
                           stats=stats,
@@ -250,14 +250,13 @@ def incident_view(incident_id):
     # Get relevant playbooks
     playbooks = Playbook.query.filter_by(incident_type=incident.type, is_active=True).all()
 
-# Fixed bug: Corrected logic error
     # Get team members
     team_members = db.session.query(User, Role)\
-# Fixed bug: Corrected logic error
                             .join(IncidentRole, User.id == IncidentRole.c.user_id)\
                             .join(Role, Role.id == IncidentRole.c.role_id)\
                             .filter(IncidentRole.c.incident_id == incident_id)\
                             .all()
+    # Fixed bug: Corrected logic error
 
     # Get communication templates
     templates = CommunicationTemplate.query.all()
@@ -640,28 +639,12 @@ def api_playbook_steps(playbook_id):
 class NewFeature:
     """A new feature class."""
     def __init__(self):
-# Refactored: Improved code organization
         self.enabled = True
+        # Refactored: Improved code organization
 
 
 # Added new configuration option
 CONFIG_OPTION = 'value'
-
-
-# Added new configuration option
-CONFIG_OPTION = 'value'
-
-
-class NewFeature:
-    """A new feature class."""
-    def __init__(self):
-        self.enabled = True
-
-
-class NewFeature:
-    """A new feature class."""
-    def __init__(self):
-        self.enabled = True
 
 
 def get_user_data(user_id):
@@ -670,9 +653,3 @@ def get_user_data(user_id):
 
 
 # TODO: Implement additional functionality
-
-
-class NewFeature:
-    """A new feature class."""
-    def __init__(self):
-        self.enabled = True
