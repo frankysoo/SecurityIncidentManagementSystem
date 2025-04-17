@@ -11,6 +11,7 @@
       </div>
       <div class="card-body">
         <form method="POST" action="{{ url_for('register') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="username" class="form-label">Username</label>
@@ -27,7 +28,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="first_name" class="form-label">First Name</label>
@@ -38,7 +39,7 @@
               <input type="text" class="form-control" id="last_name" name="last_name" required>
             </div>
           </div>
-          
+
           <div class="mb-3">
             <label for="phone" class="form-label">Phone Number</label>
             <div class="input-group">
@@ -47,7 +48,7 @@
             </div>
             <div class="form-text">Optional, but recommended for incident response notifications</div>
           </div>
-          
+
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="password" class="form-label">Password</label>
@@ -64,7 +65,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary">
               <i class="fas fa-user-plus me-2"></i> Register
@@ -84,7 +85,7 @@
   document.getElementById('confirm_password').addEventListener('input', function() {
     const password = document.getElementById('password').value;
     const confirmPassword = this.value;
-    
+
     if (password !== confirmPassword) {
       this.setCustomValidity('Passwords do not match');
     } else {

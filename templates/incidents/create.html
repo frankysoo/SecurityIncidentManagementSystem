@@ -16,6 +16,7 @@
         </div>
         <div class="card-body">
           <form id="incident_form" method="POST" action="{{ url_for('incident_create') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row mb-3">
               <div class="col-md-12">
                 <label for="title" class="form-label">Incident Title</label>
@@ -23,7 +24,7 @@
                 <div class="form-text">Brief, descriptive title of the incident</div>
               </div>
             </div>
-            
+
             <div class="row mb-3">
               <div class="col-md-4">
                 <label for="severity" class="form-label">Severity</label>
@@ -50,7 +51,7 @@
                 <input type="datetime-local" class="form-control" id="detected_at" name="detected_at" required>
               </div>
             </div>
-            
+
             <div class="row mb-3">
               <div class="col-md-12">
                 <label for="description" class="form-label">Description</label>
@@ -58,7 +59,7 @@
                 <div class="form-text">Detailed description of the incident including observable indicators, affected systems, and initial assessment</div>
               </div>
             </div>
-            
+
             <div class="row mb-3">
               <div class="col-md-12">
                 <label for="assigned_to" class="form-label">Assign To</label>
@@ -70,7 +71,7 @@
                 </select>
               </div>
             </div>
-            
+
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
               <a href="{{ url_for('incident_list') }}" class="btn btn-secondary me-md-2">Cancel</a>
               <button type="submit" class="btn btn-primary">Create Incident</button>
