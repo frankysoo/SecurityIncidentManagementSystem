@@ -1,6 +1,10 @@
 # Security Incident Management System (SecIMS)
 
-![Security Incident Management System](attached_assets/generated-icon.png)
+![Security Incident Management System](static/img/logo.png)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/Flask-3.1.0-green.svg)](https://flask.palletsprojects.com/)
 
 ## Overview
 
@@ -58,22 +62,47 @@ SecIMS is a comprehensive platform for tracking, responding to, and analyzing se
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/security-incident-management.git
-   cd security-incident-management
+   git clone https://github.com/frankysoo/SecurityIncidentManagementSystem.git
+   cd SecurityIncidentManagementSystem
    ```
 
-2. Install dependencies:
+2. Create a virtual environment (recommended):
+   ```bash
+   # On Windows
+   python -m venv venv
+   venv\Scripts\activate
+
+   # On macOS/Linux
+   python -m venv venv
+   source venv/bin/activate
+   ```
+
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the application:
+4. Run the application:
    ```bash
    python main.py
    ```
 
-4. Access the application:
-   Open your browser and navigate to `http://localhost:5000`
+5. Access the application:
+   Open your browser and navigate to `http://localhost:5001`
+
+### Docker Installation (Alternative)
+
+1. Build the Docker image:
+   ```bash
+   docker build -t secims .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 5001:5001 secims
+   ```
+
+3. Access the application at `http://localhost:5001`
 
 ## Initial Setup
 
@@ -108,7 +137,7 @@ In production mode, the following security enhancements are automatically applie
 ## Project Structure
 
 ```
-security-incident-management/
+SecurityIncidentManagementSystem/
 ├── app.py                  # Application initialization
 ├── config.py               # Configuration settings
 ├── demo_data_generator.py  # Script to generate sample data
@@ -116,15 +145,27 @@ security-incident-management/
 ├── main.py                 # Application entry point
 ├── models.py               # Database models
 ├── routes.py               # Route definitions
+├── utils/                  # Utility modules
+│   ├── __init__.py         # Package initialization
+│   ├── password_policy.py  # Password validation
+│   └── rate_limiter.py     # API rate limiting
 ├── static/                 # Static assets
 │   ├── css/                # CSS stylesheets
-│   └── js/                 # JavaScript files
+│   │   └── custom.css      # Custom styling
+│   ├── js/                 # JavaScript files
+│   │   ├── dashboard.js    # Dashboard functionality
+│   │   ├── main.js         # Main application logic
+│   │   └── theme-toggle.js # Dark/light mode toggle
+│   └── img/                # Images and icons
 └── templates/              # HTML templates
     ├── base.html           # Base template
+    ├── layout.html         # Layout template
     ├── dashboard.html      # Dashboard template
     ├── incidents/          # Incident-related templates
     ├── playbooks/          # Playbook-related templates
-    └── ...                 # Other templates
+    ├── pir/                # Post-incident review templates
+    ├── communications/     # Communication templates
+    └── admin/              # Admin panel templates
 ```
 
 ## Development
@@ -137,13 +178,75 @@ For development purposes, the application runs in debug mode by default:
 python main.py
 ```
 
-### Database Migrations
+You can also specify a different port if needed:
 
-The application automatically creates the necessary database tables on startup.
+```bash
+# Edit main.py to change the port
+app.run(host="0.0.0.0", port=5001, debug=True)
+```
+
+### Database Management
+
+The application automatically creates the necessary database tables on startup. The default database is SQLite, which is stored in the file `sims.db` in the project root directory.
+
+### Security Features
+
+1. **CSRF Protection**: All forms are protected against Cross-Site Request Forgery attacks using Flask-WTF.
+
+2. **Password Policy**: User passwords are validated against a security policy that requires:
+   - Minimum length
+   - Uppercase and lowercase letters
+   - Numbers
+   - Special characters
+
+3. **Rate Limiting**: API endpoints are protected against abuse with rate limiting.
+
+4. **Secure Cookies**: In production mode, cookies are set with secure flags.
+
+### Customization
+
+#### Themes
+The application supports both light and dark themes. Users can toggle between themes using the theme switch in the navigation bar.
+
+#### Adding New Incident Types
+To add new incident types, create new playbooks with the desired incident type. The system will automatically make these types available when creating new incidents.
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a Pull Request
+
+### Coding Standards
+
+- Follow PEP 8 style guidelines for Python code
+- Use meaningful variable and function names
+- Write docstrings for all functions and classes
+- Include unit tests for new features
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Port already in use**: If port 5001 is already in use, edit `main.py` to use a different port.
+
+2. **Database errors**: If you encounter database errors, try deleting the `sims.db` file and restarting the application to recreate the database schema.
+
+3. **CSRF token errors**: If you get CSRF token errors, make sure all forms include the CSRF token:
+   ```html
+   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+   ```
+
+4. **Timezone errors**: If you encounter timezone-related errors, ensure you're using the correct import:
+   ```python
+   from datetime import datetime, timezone
+   ```
 
 ## License
 
@@ -153,3 +256,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - NIST SP 800-61 for incident response guidance
 - ISO 27035 for incident management best practices
+- Bootstrap for the responsive UI framework
+- Chart.js for data visualization
+- Flask and SQLAlchemy for the backend framework
+
+## Contact
+
+For questions or support, please open an issue on the GitHub repository.
