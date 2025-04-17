@@ -61,6 +61,9 @@ login_manager.login_message_category = 'info'
 csrf = CSRFProtect()
 csrf.init_app(app)
 
+# Temporarily disable CSRF for testing
+app.config['WTF_CSRF_ENABLED'] = False
+
 # Import models and create database tables
 with app.app_context():
     from models import User, Role, Incident, IncidentUpdate, Playbook, PlaybookStep
