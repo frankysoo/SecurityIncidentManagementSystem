@@ -1,7 +1,7 @@
 [project]
-name = "repl-nix-workspace"
-version = "0.1.0"
-description = "Add your description here"
+name = "security-incident-management-system"
+version = "1.0.0"
+description = "A comprehensive system for managing security incidents"
 requires-python = ">=3.11"
 dependencies = [
     "email-validator>=2.2.0",
